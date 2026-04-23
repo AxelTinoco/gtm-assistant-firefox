@@ -1,172 +1,218 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GTM & GA4 Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>GTM & QA Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --surface2: #1a1a25;
-      --border: #2a2a3a;
-      --gtm-color: #4285f4;
-      --ga4-color: #34a853;
-      --network-color: #fbbc04;
-      --error-color: #ea4335;
-      --text: #e8e8f0;
-      --text-muted: #7070a0;
-      --accent: #4285f4;
+      --accent: #7C5CFC;
+      --accent-dark: #5B3ED9;
+      --accent-dim: #7C5CFC33;
+      --bg-primary: #212529;
+      --bg-secondary: #2B3035;
+      --bg-surface: #3D4349;
+      --border: #495057;
+      --text-primary: #F8F9FA;
+      --text-secondary: #ADB5BD;
+      --text-muted: #6C757D;
+      --status-success: #34D399;
+      --status-error: #F87171;
+      --status-warning: #FBBF24;
+      --status-info: #60A5FA;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      width: 420px;
-      min-height: 500px;
-      max-height: 650px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
+      width: 340px;
+      height: 540px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
+    /* Accent line */
+    .accent-line {
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent) 0%, #00D4AA 100%);
+      flex-shrink: 0;
+    }
+
     /* Header */
     .header {
-      background: linear-gradient(135deg, #0a0a1f 0%, #0d0d20 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 16px;
+      background: var(--bg-secondary);
+      padding: 14px 16px 12px;
       display: flex;
       align-items: center;
       gap: 10px;
-      position: relative;
-      overflow: hidden;
+      flex-shrink: 0;
     }
 
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -20px; left: -20px;
-      width: 80px; height: 80px;
-      background: radial-gradient(circle, rgba(66,133,244,0.15) 0%, transparent 70%);
-    }
-
-    .logo {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--gtm-color), var(--ga4-color));
+    .header-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
       flex-shrink: 0;
-      box-shadow: 0 0 12px rgba(66,133,244,0.3);
     }
 
-    .header-info h1 {
-      font-size: 13px;
+    .header-icon span {
+      color: #fff;
+      font-size: 10px;
       font-weight: 800;
-      letter-spacing: 0.5px;
+    }
+
+    .header-titles {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .header-titles h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      color: var(--text-primary);
       line-height: 1;
     }
 
-    .header-info p {
+    .header-version {
       font-size: 10px;
+      font-weight: 400;
       color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
-      margin-top: 2px;
+      letter-spacing: 0.3px;
     }
 
-    .refresh-btn {
-      margin-left: auto;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      width: 28px; height: 28px;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      transition: all 0.2s;
+    .header-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--status-success);
+      flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Dividers */
+    .divider {
+      height: 1px;
+      background: var(--border);
       flex-shrink: 0;
     }
 
-    .refresh-btn:hover {
-      color: var(--text);
-      border-color: var(--accent);
-      background: rgba(66,133,244,0.1);
-    }
-
-    .refresh-btn.spinning {
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Tabs */
-    .tabs {
+    /* URL bar */
+    .url-bar {
+      background: var(--bg-secondary);
+      padding: 8px 16px;
       display: flex;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 8px;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .url-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .url-text {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      letter-spacing: 0.1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    /* Tab segment */
+    .tab-container {
+      background: var(--bg-secondary);
+      padding: 8px 16px;
+      flex-shrink: 0;
+    }
+
+    .tab-segment {
+      background: rgba(43, 48, 53, 0.6);
+      border-radius: 8px;
+      padding: 3px;
+      display: flex;
+      gap: 2px;
     }
 
     .tab {
-      padding: 9px 12px;
+      flex: 1;
+      padding: 7px 0;
+      text-align: center;
       font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s;
-      letter-spacing: 0.3px;
+      border-radius: 6px;
+      transition: all 0.15s;
       display: flex;
       align-items: center;
-      gap: 5px;
-      position: relative;
+      justify-content: center;
+      gap: 4px;
+      user-select: none;
+      /* button reset */
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
     }
 
-    .tab:hover { color: var(--text); }
-
     .tab.active {
-      color: var(--text);
-      border-bottom-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
     }
 
     .tab .badge {
-      background: var(--accent);
-      color: white;
       border-radius: 3px;
       padding: 1px 4px;
       font-size: 9px;
-      font-family: 'JetBrains Mono', monospace;
       min-width: 16px;
       text-align: center;
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
     }
 
-    .tab .badge.green { background: var(--ga4-color); }
-    .tab .badge.yellow { background: var(--network-color); color: #000; }
-    .tab .badge.red { background: var(--error-color); }
+    .tab:not(.active) .badge {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
 
     /* Content */
     .content {
       flex: 1;
       overflow-y: auto;
-      padding: 12px;
+      padding: 16px 16px 12px;
       scrollbar-width: thin;
       scrollbar-color: var(--border) transparent;
     }
 
+    /* Tab panels — visibility controlled via the hidden attribute + .active class */
+    .tab-panel { display: block; }
+    .tab-panel[hidden] { display: none; }
+
     /* Status Banner */
     .status-banner {
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       padding: 10px 12px;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -174,28 +220,48 @@
     }
 
     .status-banner.loading {
-      background: rgba(66,133,244,0.08);
-      border: 1px solid rgba(66,133,244,0.2);
-      color: var(--gtm-color);
+      background: rgba(96, 165, 250, 0.1);
+      border: 1px solid rgba(96, 165, 250, 0.25);
+      color: var(--status-info);
     }
 
     .status-banner.not-found {
-      background: rgba(234,67,53,0.08);
-      border: 1px solid rgba(234,67,53,0.2);
-      color: var(--error-color);
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      color: var(--status-error);
     }
 
     .status-banner.found {
-      background: rgba(52,168,83,0.08);
-      border: 1px solid rgba(52,168,83,0.2);
-      color: var(--ga4-color);
+      background: var(--accent-dim);
+      border: 1px solid rgba(124, 92, 252, 0.3);
+      color: var(--accent);
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
     }
 
     /* Cards */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      background: var(--bg-secondary);
+      border: 1px solid rgba(73, 80, 87, 0.85);
+      border-radius: var(--radius-md);
       margin-bottom: 8px;
       overflow: hidden;
     }
@@ -205,37 +271,50 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid var(--border);
       cursor: pointer;
       user-select: none;
+      /* button reset */
+      width: 100%;
+      background: transparent;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      color: inherit;
+      text-align: left;
     }
 
-    .card-header:hover { background: rgba(255,255,255,0.02); }
+    .card-header:hover { background: rgba(255, 255, 255, 0.03); }
 
     .tag-badge {
       padding: 2px 7px;
       border-radius: 4px;
       font-size: 10px;
       font-weight: 700;
-      font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.5px;
     }
 
-    .gtm-badge { background: rgba(66,133,244,0.15); color: var(--gtm-color); border: 1px solid rgba(66,133,244,0.3); }
-    .ga4-badge { background: rgba(52,168,83,0.15); color: var(--ga4-color); border: 1px solid rgba(52,168,83,0.3); }
+    .gtm-badge {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(124, 92, 252, 0.3);
+    }
+
+    .ga4-badge {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--status-success);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
 
     .card-title {
       font-size: 12px;
       font-weight: 700;
       flex: 1;
-      font-family: 'JetBrains Mono', monospace;
     }
 
     .status-dot {
-      width: 7px; height: 7px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: var(--ga4-color);
-      box-shadow: 0 0 6px var(--ga4-color);
+      background: var(--status-success);
       animation: pulse 2s ease-in-out infinite;
     }
 
@@ -254,6 +333,7 @@
 
     .card-body {
       padding: 10px 12px;
+      border-top: 1px solid rgba(73, 80, 87, 0.5);
       display: none;
     }
 
@@ -264,7 +344,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 4px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       font-size: 11px;
     }
 
@@ -272,16 +352,14 @@
 
     .prop-key {
       color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
     }
 
     .prop-val {
-      font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      color: var(--text);
+      color: var(--text-primary);
       font-weight: 600;
-      max-width: 220px;
+      max-width: 180px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -289,9 +367,9 @@
 
     /* DataLayer Events */
     .event-item {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      background: var(--bg-secondary);
+      border: 1px solid rgba(73, 80, 87, 0.55);
+      border-radius: var(--radius-sm);
       margin-bottom: 6px;
       overflow: hidden;
     }
@@ -302,19 +380,24 @@
       padding: 7px 10px;
       gap: 8px;
       cursor: pointer;
+      /* button reset */
+      width: 100%;
+      background: transparent;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      color: inherit;
+      text-align: left;
     }
 
-    .event-header:hover { background: rgba(255,255,255,0.02); }
+    .event-header:hover { background: rgba(255, 255, 255, 0.02); }
 
     .event-index {
       font-size: 9px;
-      font-family: 'JetBrains Mono', monospace;
       color: var(--text-muted);
       min-width: 20px;
     }
 
     .event-name {
-      font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       font-weight: 600;
       flex: 1;
@@ -328,10 +411,10 @@
     .event-body.open { display: block; }
 
     .event-json {
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.25);
       border-radius: 4px;
       padding: 8px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: monospace;
       font-size: 10px;
       color: #aef;
       overflow-x: auto;
@@ -343,9 +426,9 @@
 
     /* Network hits */
     .hit-item {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      background: var(--bg-secondary);
+      border: 1px solid rgba(73, 80, 87, 0.55);
+      border-radius: var(--radius-sm);
       padding: 8px 10px;
       margin-bottom: 6px;
     }
@@ -353,26 +436,24 @@
     .hit-type {
       font-size: 10px;
       font-weight: 700;
-      font-family: 'JetBrains Mono', monospace;
       margin-bottom: 4px;
     }
 
-    .hit-type.gtm-type { color: var(--gtm-color); }
-    .hit-type.ga4-type { color: var(--ga4-color); }
-    .hit-type.ua-type { color: var(--network-color); }
+    .hit-type.gtm-type { color: var(--accent); }
+    .hit-type.ga4-type { color: var(--status-success); }
+    .hit-type.ua-type  { color: var(--status-warning); }
 
     .hit-meta {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
     .hit-chip {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 3px;
       padding: 2px 6px;
       font-size: 9px;
-      font-family: 'JetBrains Mono', monospace;
       color: var(--text-muted);
     }
 
@@ -380,7 +461,6 @@
       margin-left: auto;
       font-size: 9px;
       color: var(--text-muted);
-      font-family: 'JetBrains Mono', monospace;
     }
 
     .empty-state {
@@ -392,26 +472,6 @@
     .empty-state .icon { font-size: 28px; margin-bottom: 8px; }
     .empty-state p { font-size: 12px; }
 
-    /* Section label */
-    .section-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
     .clear-btn {
       background: transparent;
       border: 1px solid var(--border);
@@ -420,90 +480,181 @@
       padding: 3px 8px;
       font-size: 9px;
       cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Inter', sans-serif;
       transition: all 0.2s;
     }
 
     .clear-btn:hover {
-      border-color: var(--error-color);
-      color: var(--error-color);
+      border-color: var(--status-error);
+      color: var(--status-error);
     }
 
-    /* Tab panels */
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    /* Footer */
+    .footer {
+      background: var(--bg-secondary);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
 
-    /* URL bar */
-    .url-bar {
-      background: var(--surface2);
-      border-top: 1px solid var(--border);
-      padding: 6px 12px;
-      font-size: 9px;
-      font-family: 'JetBrains Mono', monospace;
+    .footer-left {
+      font-size: 10px;
+      font-weight: 400;
       color: var(--text-muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      letter-spacing: 0.2px;
+    }
+
+    .refresh-btn {
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+      border: none;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .refresh-btn:hover { opacity: 0.85; }
+
+    .refresh-btn.spinning {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* Focus indicators — Phase 1 accessibility */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    .tab:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: -2px;
+    }
+
+    .refresh-btn:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
     }
   </style>
 </head>
 <body>
 
+<div class="accent-line"></div>
+
 <div class="header">
-  <div class="logo">🏷️</div>
-  <div class="header-info">
-    <h1>GTM & GA4 ASSISTANT</h1>
-    <p id="headerUrl">Cargando...</p>
+  <div class="header-icon">
+    <span>&lt;/&gt;</span>
   </div>
-  <button class="refresh-btn" id="refreshBtn" title="Refrescar">↻</button>
+  <div class="header-titles">
+    <h1>GTM &amp; QA Assistant</h1>
+    <span class="header-version">v2.4.1</span>
+  </div>
+  <div class="header-status-dot"></div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" data-tab="overview">
-    Resumen
-    <span class="badge" id="badge-overview">0</span>
-  </div>
-  <div class="tab" data-tab="datalayer">
-    DataLayer
-    <span class="badge green" id="badge-datalayer">0</span>
-  </div>
-  <div class="tab" data-tab="network">
-    Network
-    <span class="badge yellow" id="badge-network">0</span>
+<div class="divider"></div>
+
+<div class="url-bar">
+  <span class="url-icon">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    </svg>
+  </span>
+  <span class="url-text" id="urlBar">—</span>
+</div>
+
+<div class="divider"></div>
+
+<div class="tab-container">
+  <div class="tab-segment" role="tablist" aria-label="Extension sections">
+    <button class="tab active"
+            role="tab"
+            id="tab-btn-overview"
+            data-tab="overview"
+            aria-selected="true"
+            aria-controls="tab-overview"
+            tabindex="0">
+      Overview
+      <span class="badge" id="badge-overview" aria-label="0 tags detected">0</span>
+    </button>
+    <button class="tab"
+            role="tab"
+            id="tab-btn-datalayer"
+            data-tab="datalayer"
+            aria-selected="false"
+            aria-controls="tab-datalayer"
+            tabindex="-1">
+      DataLayer
+      <span class="badge" id="badge-datalayer" aria-label="0 dataLayer events">0</span>
+    </button>
+    <button class="tab"
+            role="tab"
+            id="tab-btn-network"
+            data-tab="network"
+            aria-selected="false"
+            aria-controls="tab-network"
+            tabindex="-1">
+      Network
+      <span class="badge" id="badge-network" aria-label="0 network hits">0</span>
+    </button>
   </div>
 </div>
 
 <div class="content">
   <!-- OVERVIEW TAB -->
-  <div class="tab-panel active" id="tab-overview">
+  <div class="tab-panel active"
+       id="tab-overview"
+       role="tabpanel"
+       aria-labelledby="tab-btn-overview"
+       tabindex="0">
     <div id="statusBanner" class="status-banner loading">
-      <span>⏳</span> <span>Analizando página...</span>
+      <span>⏳</span> <span>Analyzing page...</span>
     </div>
-
     <div id="gtmSection"></div>
     <div id="ga4Section"></div>
   </div>
 
   <!-- DATALAYER TAB -->
-  <div class="tab-panel" id="tab-datalayer">
+  <div class="tab-panel"
+       id="tab-datalayer"
+       role="tabpanel"
+       aria-labelledby="tab-btn-datalayer"
+       tabindex="0"
+       hidden>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div class="section-label" style="flex:1">Eventos del dataLayer</div>
-      <button class="clear-btn" id="clearNetworkBtn">Limpiar</button>
+      <div class="section-label" style="flex:1">dataLayer events</div>
+      <button class="clear-btn" id="clearNetworkBtn" aria-label="Clear dataLayer events">Clear</button>
     </div>
     <div id="dataLayerList"></div>
   </div>
 
   <!-- NETWORK TAB -->
-  <div class="tab-panel" id="tab-network">
+  <div class="tab-panel"
+       id="tab-network"
+       role="tabpanel"
+       aria-labelledby="tab-btn-network"
+       tabindex="0"
+       hidden>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div class="section-label" style="flex:1">Hits de red capturados</div>
-      <button class="clear-btn" id="clearHitsBtn">Limpiar</button>
+      <div class="section-label" style="flex:1">Captured network hits</div>
+      <button class="clear-btn" id="clearHitsBtn" aria-label="Clear network hits">Clear</button>
     </div>
     <div id="networkList"></div>
   </div>
 </div>
 
-<div class="url-bar" id="urlBar">—</div>
+<div class="footer">
+  <span class="footer-left" id="lastScan">Last scan: —</span>
+  <button class="refresh-btn" id="refreshBtn">Refresh</button>
+</div>
 
 <script src="popup.js"></script>
 </body>
