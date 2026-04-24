@@ -1,0 +1,96 @@
+name: 🐛 Bug report
+description: Reporta un problema con la extensión
+title: '[Bug] '
+labels: ['bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¡Gracias por reportar un bug! Completa la información siguiente para ayudarnos a reproducirlo.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-chequeo
+      options:
+        - label: He buscado entre los issues existentes y no hay uno igual
+          required: true
+        - label: Estoy usando la última versión de la extensión
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Versión de la extensión
+      placeholder: '1.0.0'
+    validations:
+      required: true
+
+  - type: input
+    id: firefox
+    attributes:
+      label: Versión de Firefox
+      placeholder: '124.0 / Developer Edition 125.0b'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Sistema operativo
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - Otro
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del bug
+      description: Describe el problema de forma clara y concisa
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      placeholder: |
+        1. Ir a '...'
+        2. Hacer clic en '...'
+        3. Ver el error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento esperado
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamiento actual
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs de consola / screenshots
+      description: Si aplica, incluye logs de la consola del navegador o screenshots
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Contexto adicional
+      description: Cualquier otra información relevante
+    validations:
+      required: false
