@@ -44,7 +44,7 @@
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.0.0",
     "prettier": "^3.3.0",
-    "web-ext": "^8.0.0"
+    "web-ext": "^10.1.0"
   },
   "webExt": {
     "sourceDir": ".",
