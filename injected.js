@@ -74,7 +74,7 @@
           var isArguments = (entry !== null && typeof entry === 'object'
             && !Array.isArray(entry)
             && typeof entry.length === 'number'
-            && !entry.hasOwnProperty('event'));
+            && !Object.prototype.hasOwnProperty.call(entry, 'event'));
 
           if (isArguments || Array.isArray(entry)) {
             var arr = Array.from(entry).map(function(v) {
