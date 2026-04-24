@@ -62,8 +62,14 @@ tabButtons.forEach((tab) => {
 document.getElementById('refreshBtn').addEventListener('click', () => {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
+  btn.setAttribute('aria-busy', 'true');
+  btn.setAttribute('aria-disabled', 'true');
   loadData().finally(() => {
-    setTimeout(() => btn.classList.remove('spinning'), 600);
+    setTimeout(() => {
+      btn.classList.remove('spinning');
+      btn.removeAttribute('aria-busy');
+      btn.removeAttribute('aria-disabled');
+    }, 600);
   });
 });
 
@@ -125,12 +131,17 @@ function renderOverview() {
   const totalTags = gtmItems.length + ga4Items.length;
 
   // Update badge
-  document.getElementById('badge-overview').textContent = totalTags;
+  const overviewBadge = document.getElementById('badge-overview');
+  overviewBadge.textContent = totalTags;
+  overviewBadge.setAttribute(
+    'aria-label',
+    `${totalTags} Google tag${totalTags !== 1 ? 's' : ''} detected`,
+  );
 
   if (!currentData) {
     statusBanner.className = 'status-banner not-found';
     statusBanner.innerHTML =
-      '<span>⚠️</span> <span>Could not analyze this page. Is it a special browser page?</span>';
+      '<span aria-hidden="true">⚠️</span> <span>Could not analyze this page. Is it a special browser page?</span>';
     gtmSection.innerHTML = '';
     ga4Section.innerHTML = '';
     return;
@@ -138,15 +149,16 @@ function renderOverview() {
 
   if (totalTags === 0) {
     statusBanner.className = 'status-banner not-found';
-    statusBanner.innerHTML = '<span>🔍</span> <span>No GTM or GA4 detected on this page</span>';
+    statusBanner.innerHTML =
+      '<span aria-hidden="true">🔍</span> <span>No GTM or GA4 detected on this page</span>';
   } else {
     statusBanner.className = 'status-banner found';
-    statusBanner.innerHTML = `<span>✅</span> <span>Detected <strong>${totalTags}</strong> Google tag${totalTags !== 1 ? 's' : ''}</span>`;
+    statusBanner.innerHTML = `<span aria-hidden="true">✅</span> <span>Detected <strong>${totalTags}</strong> Google tag${totalTags !== 1 ? 's' : ''}</span>`;
   }
 
   // GTM Cards
   if (gtmItems.length > 0) {
-    let html = '<div class="section-label">Google Tag Manager</div>';
+    let html = '<h2 class="section-label">Google Tag Manager</h2>';
     gtmItems.forEach((gtm) => {
       html += `
         <div class="card">
@@ -179,7 +191,7 @@ function renderOverview() {
 
   // GA4 Cards
   if (ga4Items.length > 0) {
-    let html = '<div class="section-label" style="margin-top:10px">Google Analytics 4</div>';
+    let html = '<h2 class="section-label" style="margin-top:10px">Google Analytics 4</h2>';
     ga4Items.forEach((ga4) => {
       html += `
         <div class="card">
@@ -212,12 +224,17 @@ function renderDataLayer() {
   const list = document.getElementById('dataLayerList');
   const events = currentData?.dataLayer || [];
 
-  document.getElementById('badge-datalayer').textContent = events.length;
+  const datalayerBadge = document.getElementById('badge-datalayer');
+  datalayerBadge.textContent = events.length;
+  datalayerBadge.setAttribute(
+    'aria-label',
+    `${events.length} dataLayer event${events.length !== 1 ? 's' : ''}`,
+  );
 
   if (events.length === 0) {
     list.innerHTML = `
       <div class="empty-state">
-        <div class="icon">📭</div>
+        <div class="icon" role="img" aria-label="No events">📭</div>
         <p>No dataLayer events found.<br>This page may not use GTM.</p>
       </div>`;
     return;
@@ -227,7 +244,7 @@ function renderDataLayer() {
   // Show most recent first
   const reversed = [...events].reverse();
   reversed.forEach((event) => {
-    const nameColor = event.hasEvent ? '#7C5CFC' : '#FBBF24';
+    const nameColor = event.hasEvent ? '#B5A5FF' : '#FBBF24';
     html += `
       <div class="event-item">
         <button class="event-header" onclick="toggleEvent(this)" aria-expanded="false" aria-label="Toggle payload for event ${escHtml(event.event)}">
@@ -249,12 +266,17 @@ function renderNetwork() {
   const ga4Hits = allData?.ga4Hits || [];
   const allHits = [...gtmHits, ...ga4Hits].sort((a, b) => b.timestamp - a.timestamp);
 
-  document.getElementById('badge-network').textContent = allHits.length;
+  const networkBadge = document.getElementById('badge-network');
+  networkBadge.textContent = allHits.length;
+  networkBadge.setAttribute(
+    'aria-label',
+    `${allHits.length} network hit${allHits.length !== 1 ? 's' : ''}`,
+  );
 
   if (allHits.length === 0) {
     list.innerHTML = `
       <div class="empty-state">
-        <div class="icon">🌐</div>
+        <div class="icon" role="img" aria-label="No network activity">🌐</div>
         <p>No network hits captured.<br>Browse this tab to start capturing.</p>
       </div>`;
     return;

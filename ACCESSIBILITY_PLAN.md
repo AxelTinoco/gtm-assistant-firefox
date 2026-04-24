@@ -273,32 +273,162 @@ The existing emoji + text already partially satisfies this (✅ / 🔍 / ⚠️)
 
 ### `popup.html`
 
-- [ ] Add `lang="en"` ✅ (already done)
-- [ ] Replace `.header` div → `<header>`
-- [ ] Replace `.content` div → `<main>`
-- [ ] Replace `.footer` div → `<footer>`
-- [ ] Add `role="tablist"` to `.tab-segment`
-- [ ] Change tab `<div>` → `<button role="tab" aria-selected aria-controls>`
-- [ ] Add `role="tabpanel" aria-labelledby` to each `.tab-panel`
-- [ ] Add `role="status" aria-live="polite"` to `#statusBanner`
-- [ ] Add `role="status" aria-live="polite"` to `#lastScan`
-- [ ] Add `aria-live="polite"` to `#gtmSection`, `#ga4Section`, `#dataLayerList`, `#networkList`
-- [ ] Add `aria-label` to `#urlBar`, `#clearNetworkBtn`, `#clearHitsBtn`, `#badge-*`
-- [ ] Add `aria-hidden="true"` to `.accent-line`, `.url-icon svg`
-- [ ] Add `:focus-visible` CSS for all interactive elements
-- [ ] Update `--text-secondary` and `--text-muted` contrast values
+- [x] Add `lang="en"`
+- [x] Replace `.header` div → `<header>`
+- [x] Replace `.content` div → `<main>`
+- [x] Replace `.footer` div → `<footer>`
+- [x] Add `role="tablist"` to `.tab-segment`
+- [x] Change tab `<div>` → `<button role="tab" aria-selected aria-controls>`
+- [x] Add `role="tabpanel" aria-labelledby` to each `.tab-panel`
+- [x] Add `role="status" aria-live="polite"` to `#statusBanner`
+- [x] Add `role="status" aria-live="polite"` to `#lastScan`
+- [x] Add `aria-live="polite"` to `#gtmSection`, `#ga4Section`, `#dataLayerList`, `#networkList`
+- [x] Add `aria-label` to `#urlBar`, `#clearNetworkBtn`, `#clearHitsBtn`, `#badge-*`
+- [x] Add `aria-hidden="true"` to `.accent-line`, `.url-icon svg`
+- [x] Add `:focus-visible` CSS for all interactive elements
+- [x] Update `--text-secondary` and `--text-muted` contrast values
 
 ### `popup.js`
 
-- [ ] Change card-header template from `<div>` → `<button aria-expanded="false">`
-- [ ] Change event-header template from `<div>` → `<button aria-expanded="false">`
-- [ ] Change section labels from `<div>` → `<h2>`
-- [ ] Update `toggleCard()` to set `aria-expanded`
-- [ ] Update `toggleEvent()` to set `aria-expanded`
-- [ ] Add Arrow Left/Right keyboard support to tab switcher
-- [ ] Add `aria-busy` / `aria-disabled` to refresh button during load
-- [ ] Add `role="img" aria-label` to emoji in empty states
-- [ ] Change GA4 fallback text from `'GA4 Active'` → keep, already English ✅
+- [x] Change card-header template from `<div>` → `<button aria-expanded="false">`
+- [x] Change event-header template from `<div>` → `<button aria-expanded="false">`
+- [x] Change section labels from `<div>` → `<h2>`
+- [x] Update `toggleCard()` to set `aria-expanded`
+- [x] Update `toggleEvent()` to set `aria-expanded`
+- [x] Add Arrow Left/Right keyboard support to tab switcher
+- [x] Add `aria-busy` / `aria-disabled` to refresh button during load
+- [x] Add `role="img" aria-label` to emoji in empty states
+- [x] Sync `aria-label` on badges when count changes
+- [x] Replace hard-coded accent color (`#7C5CFC` → `#B5A5FF`) in dataLayer event name
+
+---
+
+---
+
+## DevTools Panel Audit
+
+**Files audited:** `devtools/devtools.html`, `devtools/panel.html`, `devtools/panel.js`
+**Standard:** WCAG 2.1 (Levels A and AA)
+
+### 1. Semantic HTML & Language
+
+| ID    | Severity | Issue                                                                                    | Location                            |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ----------------------------------- |
+| D-S1  | 🟠       | `devtools.html` `<html>` missing `lang` attribute                                        | `devtools/devtools.html:2`          |
+| D-S2  | 🟠       | Missing landmarks (`<header>`, `<main>`, `<nav>`)                                        | `devtools/panel.html` top-level     |
+| D-S3  | 🟡       | `.sidebar-label` uses `<div>` — should be `<h2>`                                         | `devtools/panel.js:43, 53, 63, 71`  |
+| D-S4  | 🟡       | `.detail-title` uses `<div>` (18px) — should be `<h2>`                                   | `devtools/panel.js:109, 122, 145, 164, 203` |
+| D-S5  | 🟢       | UI strings mix English (popup) and Spanish (devtools) — consider unifying or i18n        | project-wide                        |
+
+### 2. ARIA Roles & Attributes
+
+| ID    | Severity | Issue                                                                                    | Location                        |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ------------------------------- |
+| D-A1  | 🔴       | `.tag-item` uses `<div onclick>` — no role, no keyboard, not focusable                   | `devtools/panel.js:45, 55, 64, 72` |
+| D-A2  | 🟠       | `#statusText` updated dynamically, missing `role="status"` + `aria-live="polite"`        | `devtools/panel.html:171`       |
+| D-A3  | 🟡       | Sidebar dynamic list updates not in a live region                                        | `devtools/panel.js:33-84`       |
+| D-A4  | 🟡       | Active sidebar item has `.active` class but no `aria-current="true"` / `aria-selected`   | `devtools/panel.js` `.tag-item` |
+| D-A5  | 🟡       | Decorative emojis (📦, 📊, 🌐, 🏷️) not marked `aria-hidden="true"`                       | `devtools/panel.html:169`, `panel.js:109, 123, 165, 203` |
+| D-A6  | 🟢       | Refresh `↻` symbol alongside text "Refrescar" — not critical but could `aria-hide`       | `devtools/panel.html:170`       |
+
+### 3. Keyboard Navigation
+
+| ID    | Severity | Issue                                                                                    | Location                        |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ------------------------------- |
+| D-K1  | 🔴       | Sidebar items not reachable by Tab, no Enter/Space support                               | `devtools/panel.js` `.tag-item` |
+| D-K2  | 🟠       | No `:focus-visible` styles anywhere in the panel                                         | `devtools/panel.html` CSS       |
+| D-K3  | 🟡       | No arrow-key navigation pattern between sidebar items (standard listbox/menu pattern)    | `devtools/panel.js`             |
+
+### 4. Color Contrast
+
+| ID    | Severity | Issue                                                                                    | Ratio    | Required   |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | -------- | ---------- |
+| D-C1  | 🟠       | `#7070a0` on `#111118` (toolbar / sidebar-label / tsub)                                  | ~4.0:1   | 4.5:1 (AA) |
+| D-C2  | 🟠       | `#7070a0` on `#0a0a0f` (empty state / json-cell / sidebar-label)                         | ~4.15:1  | 4.5:1 (AA) |
+| D-C3  | 🟡       | `#7070a0` used on light hover `#1a1a25` background — verify after change                 | —        | 4.5:1 (AA) |
+
+**Fix for D-C1–D-C3:** Replace muted text color `#7070a0` with `#8a8ac0` (≈6.1:1 on `#0a0a0f`, ≈5.9:1 on `#111118`). Acceptable for body/label text; keep the original tone for truly decorative borders only.
+
+### 5. Interactive Elements & Screen Reader Support
+
+| ID    | Severity | Issue                                                                                    | Location                        |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ------------------------------- |
+| D-I1  | 🔴       | Divs with `onclick` used as buttons (repeats D-A1/D-K1)                                  | `devtools/panel.js` `.tag-item` |
+| D-I2  | 🟡       | Refresh button has no `aria-busy` during reload                                          | `devtools/panel.js:210`         |
+| D-R1  | 🟡       | Detail pane updates (show*Detail / showDataLayer / showNetworkHits) not announced        | `devtools/panel.js` all render  |
+
+### 6. Tables
+
+| ID    | Severity | Issue                                                                                    | Location                        |
+| ----- | -------- | ---------------------------------------------------------------------------------------- | ------------------------------- |
+| D-T1  | 🟢       | Add `scope="col"` to `<th>` (modern browsers infer, but explicit is safer)                | `devtools/panel.js` tables      |
+
+---
+
+### Implementation Plan (DevTools)
+
+#### Phase D1 — Critical: keyboard & roles
+
+- Convert every `.tag-item` `<div>` to `<button class="tag-item">` (reset button styles in CSS)
+- Add keyboard handlers (Enter/Space are free with `<button>`)
+- Add `lang="en"` (or `"es"`) to `devtools/devtools.html`
+- Add `role="status" aria-live="polite"` to `#statusText`
+
+#### Phase D2 — Semantic landmarks & headings
+
+- `<div class="toolbar">` → `<header class="toolbar">`
+- `<div class="main">` → `<main class="main">`
+- `<div class="sidebar">` → `<nav class="sidebar" aria-label="Detected tags">`
+- `<div class="detail">` → `<section class="detail" aria-label="Tag details">`
+- `.sidebar-label` → `<h2 class="sidebar-label">`
+- `.detail-title` → `<h2 class="detail-title">`
+
+#### Phase D3 — ARIA polish & focus
+
+- Decorative emojis → wrap in `<span aria-hidden="true">`
+- `.tag-item.active` → also set `aria-current="true"`
+- Add `:focus-visible` rules to `.tag-item`, `.toolbar button`
+- Add live region around detail pane updates (or use `aria-live="polite"` on `#detail`)
+
+#### Phase D4 — Color contrast
+
+- Replace all `color: #7070a0` with `color: #8a8ac0` in text contexts
+- Verify all `.tid` accent colors against `#0a0a0f` and `#1a1a25` (active state)
+
+#### Phase D5 — Polish
+
+- Add `aria-busy` to refresh button during `loadData()`
+- Add `scope="col"` to every `<th>`
+
+---
+
+### Checklist (by file)
+
+#### `devtools/devtools.html`
+
+- [ ] Add `lang` attribute to `<html>`
+
+#### `devtools/panel.html`
+
+- [ ] Replace `.toolbar` div → `<header>`
+- [ ] Replace `.main` div → `<main>`
+- [ ] Replace `.sidebar` div → `<nav aria-label>`
+- [ ] Replace `.detail` div → `<section aria-label>`
+- [ ] Add `role="status" aria-live="polite"` to `#statusText`
+- [ ] Wrap `🏷️` emoji in `<span aria-hidden="true">`
+- [ ] Add `:focus-visible` CSS for `.tag-item` and `.toolbar button`
+- [ ] Lighten muted text color (`#7070a0` → `#8a8ac0`)
+- [ ] Add `aria-hidden="true"` on `↻` refresh symbol (optional)
+
+#### `devtools/panel.js`
+
+- [ ] Change `.tag-item` template from `<div>` → `<button>`
+- [ ] Add `aria-current="true"` to active tag-item
+- [ ] Change `.sidebar-label` template from `<div>` → `<h2>`
+- [ ] Change `.detail-title` template from `<div>` → `<h2>`
+- [ ] Wrap decorative emojis (📦, 📊, 🌐) in `<span aria-hidden="true">`
+- [ ] Add `aria-busy` to refresh button around `loadData()`
+- [ ] Add `scope="col"` to every `<th>` in injected tables
 
 ---
 
