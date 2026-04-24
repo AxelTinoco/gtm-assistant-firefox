@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discusiones
+    url: https://github.com/AxelTinoco/tag-assistant-firefox/discussions
+    about: Para preguntas abiertas, ideas y compartir casos de uso
+  - name: 🔒 Reportar vulnerabilidad de seguridad
+    url: https://github.com/AxelTinoco/tag-assistant-firefox/security/advisories/new
+    about: No reportes problemas de seguridad en issues públicos

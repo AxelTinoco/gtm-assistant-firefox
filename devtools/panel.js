@@ -3,7 +3,10 @@ let currentData = null;
 let allNetworkData = null;
 
 function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 async function loadData() {
@@ -22,7 +25,7 @@ async function loadData() {
     renderSidebar();
     document.getElementById('statusText').textContent =
       `Última actualización: ${new Date().toLocaleTimeString('es-MX')}`;
-  } catch(e) {
+  } catch (e) {
     document.getElementById('statusText').textContent = 'Error al cargar datos';
   }
 }
@@ -38,7 +41,7 @@ function renderSidebar() {
 
   if (gtm.length > 0) {
     html += '<div class="sidebar-label">Google Tag Manager</div>';
-    gtm.forEach(g => {
+    gtm.forEach((g) => {
       html += `<div class="tag-item" onclick="showGTMDetail('${escHtml(g.id)}')">
         <div class="tid gtm">${escHtml(g.id)}</div>
         <div class="tsub">${escHtml(g.status)} • v${escHtml(g.version)}</div>
@@ -48,7 +51,7 @@ function renderSidebar() {
 
   if (ga4.length > 0) {
     html += '<div class="sidebar-label">Google Analytics 4</div>';
-    ga4.forEach(g => {
+    ga4.forEach((g) => {
       html += `<div class="tag-item" onclick="showGA4Detail('${escHtml(g.id || g.method)}')">
         <div class="tid ga4">${escHtml(g.id || 'GA4')}</div>
         <div class="tsub">${escHtml(g.method || 'Script DOM')} • ${escHtml(g.status)}</div>
@@ -73,13 +76,14 @@ function renderSidebar() {
   }
 
   if (!html) {
-    html = '<div class="empty" style="padding:20px 0;text-align:left;">No se detectaron tags en esta página</div>';
+    html =
+      '<div class="empty" style="padding:20px 0;text-align:left;">No se detectaron tags en esta página</div>';
   }
 
   sidebar.innerHTML = html;
 }
 
-window.showDataLayer = function() {
+window.showDataLayer = function () {
   const detail = document.getElementById('detail');
   const events = currentData?.dataLayer || [];
 
@@ -88,13 +92,17 @@ window.showDataLayer = function() {
     return;
   }
 
-  let rows = [...events].reverse().map(e =>
-    `<tr>
+  let rows = [...events]
+    .reverse()
+    .map(
+      (e) =>
+        `<tr>
       <td>${e.index}</td>
       <td class="event-cell">${escHtml(e.event)}</td>
       <td class="json-cell">${escHtml(e.data)}</td>
     </tr>`
-  ).join('');
+    )
+    .join('');
 
   detail.innerHTML = `
     <div class="detail-title">
@@ -106,8 +114,8 @@ window.showDataLayer = function() {
     </table>`;
 };
 
-window.showGTMDetail = function(id) {
-  const gtm = currentData?.gtm?.find(g => g.id === id);
+window.showGTMDetail = function (id) {
+  const gtm = currentData?.gtm?.find((g) => g.id === id);
   if (!gtm) return;
   const detail = document.getElementById('detail');
   detail.innerHTML = `
@@ -125,10 +133,10 @@ window.showGTMDetail = function(id) {
     </table>`;
 };
 
-window.showGA4Detail = function(id) {
-  const ga4 = currentData?.ga4?.find(g => (g.id || g.method) === id);
+window.showGA4Detail = function (id) {
+  const ga4 = currentData?.ga4?.find((g) => (g.id || g.method) === id);
   if (!ga4) return;
-  const hits = allNetworkData?.ga4Hits?.filter(h => h.measurementId === ga4.id) || [];
+  const hits = allNetworkData?.ga4Hits?.filter((h) => h.measurementId === ga4.id) || [];
   const detail = document.getElementById('detail');
 
   let hitsHtml = '';
@@ -138,12 +146,16 @@ window.showGA4Detail = function(id) {
       <table class="dl-table">
         <thead><tr><th>Evento</th><th>Session ID</th><th>Client ID</th><th>Hora</th></tr></thead>
         <tbody>
-          ${hits.map(h => `<tr>
+          ${hits
+            .map(
+              (h) => `<tr>
             <td class="event-cell">${escHtml(h.eventName)}</td>
             <td>${escHtml(h.sessionId || 'N/A')}</td>
-            <td>${escHtml((h.clientId || 'N/A').substring(0,16))}...</td>
+            <td>${escHtml((h.clientId || 'N/A').substring(0, 16))}...</td>
             <td>${new Date(h.timestamp).toLocaleTimeString('es-MX')}</td>
-          </tr>`).join('')}
+          </tr>`
+            )
+            .join('')}
         </tbody>
       </table>`;
   }
@@ -164,26 +176,28 @@ window.showGA4Detail = function(id) {
     ${hitsHtml}`;
 };
 
-window.showNetworkHits = function() {
+window.showNetworkHits = function () {
   const detail = document.getElementById('detail');
   const gtmHits = allNetworkData?.gtmHits || [];
   const ga4Hits = allNetworkData?.ga4Hits || [];
-  const all = [...gtmHits, ...ga4Hits].sort((a,b) => b.timestamp - a.timestamp);
+  const all = [...gtmHits, ...ga4Hits].sort((a, b) => b.timestamp - a.timestamp);
 
   if (!all.length) {
     detail.innerHTML = '<div class="empty">Sin hits capturados</div>';
     return;
   }
 
-  let rows = all.map(h => {
-    const time = new Date(h.timestamp).toLocaleTimeString('es-MX');
-    return `<tr>
+  let rows = all
+    .map((h) => {
+      const time = new Date(h.timestamp).toLocaleTimeString('es-MX');
+      return `<tr>
       <td class="event-cell">${escHtml(h.type)}</td>
       <td>${escHtml(h.id || h.measurementId || 'N/A')}</td>
       <td>${escHtml(h.eventName || '—')}</td>
       <td>${time}</td>
     </tr>`;
-  }).join('');
+    })
+    .join('');
 
   detail.innerHTML = `
     <div class="detail-title">🌐 Network Hits</div>

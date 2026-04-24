@@ -1,0 +1,10 @@
+node_modules/
+web-ext-artifacts/
+dist/
+build/
+*.min.js
+icons/
+package-lock.json
+pnpm-lock.yaml
+CHANGELOG.md
+LICENSE
