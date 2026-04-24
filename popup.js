@@ -5,17 +5,17 @@ let allData = null;
 
 // Tab switching — WAI-ARIA tab pattern with keyboard support
 const tabButtons = Array.from(document.querySelectorAll('[role="tab"]'));
-const tabPanels  = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+const tabPanels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
 
 function activateTab(tab) {
   // Deactivate all tabs (roving tabindex)
-  tabButtons.forEach(t => {
+  tabButtons.forEach((t) => {
     t.classList.remove('active');
     t.setAttribute('aria-selected', 'false');
     t.setAttribute('tabindex', '-1');
   });
   // Hide all panels
-  tabPanels.forEach(p => {
+  tabPanels.forEach((p) => {
     p.classList.remove('active');
     p.hidden = true;
   });
@@ -31,10 +31,10 @@ function activateTab(tab) {
   panel.hidden = false;
 }
 
-tabButtons.forEach(tab => {
+tabButtons.forEach((tab) => {
   tab.addEventListener('click', () => activateTab(tab));
 
-  tab.addEventListener('keydown', e => {
+  tab.addEventListener('keydown', (e) => {
     const index = tabButtons.indexOf(tab);
     if (e.key === 'ArrowRight') {
       e.preventDefault();
@@ -129,7 +129,8 @@ function renderOverview() {
 
   if (!currentData) {
     statusBanner.className = 'status-banner not-found';
-    statusBanner.innerHTML = '<span>⚠️</span> <span>Could not analyze this page. Is it a special browser page?</span>';
+    statusBanner.innerHTML =
+      '<span>⚠️</span> <span>Could not analyze this page. Is it a special browser page?</span>';
     gtmSection.innerHTML = '';
     ga4Section.innerHTML = '';
     return;
@@ -146,7 +147,7 @@ function renderOverview() {
   // GTM Cards
   if (gtmItems.length > 0) {
     let html = '<div class="section-label">Google Tag Manager</div>';
-    gtmItems.forEach(gtm => {
+    gtmItems.forEach((gtm) => {
       html += `
         <div class="card">
           <button class="card-header" onclick="toggleCard(this)" aria-expanded="false" aria-label="Toggle details for ${escHtml(gtm.id)}">
@@ -179,7 +180,7 @@ function renderOverview() {
   // GA4 Cards
   if (ga4Items.length > 0) {
     let html = '<div class="section-label" style="margin-top:10px">Google Analytics 4</div>';
-    ga4Items.forEach(ga4 => {
+    ga4Items.forEach((ga4) => {
       html += `
         <div class="card">
           <button class="card-header" onclick="toggleCard(this)" aria-expanded="false" aria-label="Toggle details for ${escHtml(ga4.id || ga4.method || 'GA4 Active')}">
@@ -225,7 +226,7 @@ function renderDataLayer() {
   let html = '';
   // Show most recent first
   const reversed = [...events].reverse();
-  reversed.forEach(event => {
+  reversed.forEach((event) => {
     const nameColor = event.hasEvent ? '#7C5CFC' : '#FBBF24';
     html += `
       <div class="event-item">
@@ -260,9 +261,17 @@ function renderNetwork() {
   }
 
   let html = '';
-  allHits.forEach(hit => {
-    const time = new Date(hit.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const typeClass = hit.type.includes('GTM') ? 'gtm-type' : hit.type.includes('UA') ? 'ua-type' : 'ga4-type';
+  allHits.forEach((hit) => {
+    const time = new Date(hit.timestamp).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    const typeClass = hit.type.includes('GTM')
+      ? 'gtm-type'
+      : hit.type.includes('UA')
+        ? 'ua-type'
+        : 'ga4-type';
 
     html += `
       <div class="hit-item">
@@ -274,7 +283,7 @@ function renderNetwork() {
           ${hit.id ? `<span class="hit-chip">ID: ${escHtml(hit.id)}</span>` : ''}
           ${hit.eventName && hit.eventName !== 'N/A' ? `<span class="hit-chip">event: ${escHtml(hit.eventName)}</span>` : ''}
           ${hit.measurementId && hit.measurementId !== 'N/A' ? `<span class="hit-chip">tid: ${escHtml(hit.measurementId)}</span>` : ''}
-          ${hit.clientId && hit.clientId !== 'N/A' ? `<span class="hit-chip">cid: ${escHtml(hit.clientId.substring(0,12))}...</span>` : ''}
+          ${hit.clientId && hit.clientId !== 'N/A' ? `<span class="hit-chip">cid: ${escHtml(hit.clientId.substring(0, 12))}...</span>` : ''}
         </div>
       </div>`;
   });
@@ -298,7 +307,11 @@ function toggleEvent(header) {
 }
 
 function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // Exponer para onclick

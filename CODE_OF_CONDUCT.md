@@ -19,7 +19,7 @@ Ejemplos de comportamiento que contribuyen a un ambiente positivo:
 Ejemplos de comportamiento inaceptable:
 
 - El uso de lenguaje o imágenes sexualizadas, y aproximaciones o atenciones sexuales de cualquier tipo
-- Comentarios despectivos (*trolling*), insultantes o derogatorios, y ataques personales o políticos
+- Comentarios despectivos (_trolling_), insultantes o derogatorios, y ataques personales o políticos
 - El acoso en público o privado
 - Publicar información privada de otras personas sin su permiso explícito
 - Otras conductas que puedan ser razonablemente consideradas como inapropiadas en un entorno profesional

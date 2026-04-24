@@ -1,7 +1,7 @@
 name: ❓ Pregunta
 description: Haz una pregunta sobre el uso o funcionamiento de la extensión
-title: "[Question] "
-labels: ["question"]
+title: '[Question] '
+labels: ['question']
 body:
   - type: markdown
     attributes:

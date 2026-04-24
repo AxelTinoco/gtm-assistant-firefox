@@ -1,7 +1,7 @@
 name: 🐛 Bug report
 description: Reporta un problema con la extensión
-title: "[Bug] "
-labels: ["bug", "triage"]
+title: '[Bug] '
+labels: ['bug', 'triage']
 body:
   - type: markdown
     attributes:
@@ -22,7 +22,7 @@ body:
     id: version
     attributes:
       label: Versión de la extensión
-      placeholder: "1.0.0"
+      placeholder: '1.0.0'
     validations:
       required: true
 
@@ -30,7 +30,7 @@ body:
     id: firefox
     attributes:
       label: Versión de Firefox
-      placeholder: "124.0 / Developer Edition 125.0b"
+      placeholder: '124.0 / Developer Edition 125.0b'
     validations:
       required: true
 

@@ -1,5 +1,5 @@
 // Este script se inyecta en el contexto de la página para acceder a window
-(function() {
+(function () {
   'use strict';
 
   function detectTags() {
@@ -7,7 +7,7 @@
       gtm: [],
       ga4: [],
       dataLayer: [],
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     // --- Detectar GTM ---
@@ -19,7 +19,7 @@
           result.gtm.push({
             id: key,
             status: 'Activo',
-            version: (container && container.version) ? container.version : 'N/A'
+            version: container && container.version ? container.version : 'N/A',
           });
         }
       }
@@ -27,12 +27,16 @@
 
     // Buscar GTM/GA4 IDs en scripts del DOM
     var scripts = document.querySelectorAll('script');
-    scripts.forEach(function(script) {
+    scripts.forEach(function (script) {
       var src = script.src || script.textContent || '';
       var gtmMatch = src.match(/GTM-[A-Z0-9]+/g);
       if (gtmMatch) {
-        gtmMatch.forEach(function(id) {
-          if (!result.gtm.find(function(g) { return g.id === id; })) {
+        gtmMatch.forEach(function (id) {
+          if (
+            !result.gtm.find(function (g) {
+              return g.id === id;
+            })
+          ) {
             result.gtm.push({ id: id, status: 'Detectado en DOM', version: 'N/A' });
           }
         });
@@ -46,12 +50,16 @@
     if (window.ga) {
       result.ga4.push({ method: 'window.ga', status: 'Universal Analytics' });
     }
-    scripts.forEach(function(script) {
+    scripts.forEach(function (script) {
       var src = script.src || script.textContent || '';
       var ga4Match = src.match(/G-[A-Z0-9]+/g);
       if (ga4Match) {
-        ga4Match.forEach(function(id) {
-          if (!result.ga4.find(function(g) { return g.id === id; })) {
+        ga4Match.forEach(function (id) {
+          if (
+            !result.ga4.find(function (g) {
+              return g.id === id;
+            })
+          ) {
             result.ga4.push({ id: id, method: 'Script DOM', status: 'Detectado' });
           }
         });
@@ -63,7 +71,7 @@
       var total = window.dataLayer.length;
       var slice = window.dataLayer.slice(-20);
 
-      result.dataLayer = slice.map(function(entry, i) {
+      result.dataLayer = slice.map(function (entry, i) {
         var label = null;
         var hasEvent = false;
         var serialized = '';
@@ -71,13 +79,15 @@
         try {
           // gtag() pushes Arguments objects into dataLayer
           // They are array-like: {0: fn, 1: "event"/"config", 2: "name", 3: {...}}
-          var isArguments = (entry !== null && typeof entry === 'object'
-            && !Array.isArray(entry)
-            && typeof entry.length === 'number'
-            && !Object.prototype.hasOwnProperty.call(entry, 'event'));
+          var isArguments =
+            entry !== null &&
+            typeof entry === 'object' &&
+            !Array.isArray(entry) &&
+            typeof entry.length === 'number' &&
+            !Object.prototype.hasOwnProperty.call(entry, 'event');
 
           if (isArguments || Array.isArray(entry)) {
-            var arr = Array.from(entry).map(function(v) {
+            var arr = Array.from(entry).map(function (v) {
               if (typeof v === 'function') return '[Function]';
               if (v instanceof Date) return v.toISOString();
               return v;
@@ -112,7 +122,6 @@
             } else {
               label = '(gtag call)';
             }
-
           } else if (entry !== null && typeof entry === 'object') {
             // Classic GTM object: { event: "...", key: val, ... }
             serialized = JSON.stringify(entry, null, 2);
@@ -121,15 +130,16 @@
               label = entry.event;
               hasEvent = true;
             } else {
-              var keys = Object.keys(entry).filter(function(k) {
+              var keys = Object.keys(entry).filter(function (k) {
                 return k !== 'gtm.uniqueEventId';
               });
               if (keys.length > 0) {
                 var k = keys[0];
                 var v = entry[k];
-                label = (typeof v === 'string' || typeof v === 'number')
-                  ? k + ': ' + String(v).substring(0, 40)
-                  : keys.join(', ');
+                label =
+                  typeof v === 'string' || typeof v === 'number'
+                    ? k + ': ' + String(v).substring(0, 40)
+                    : keys.join(', ');
               } else {
                 label = '(objeto)';
               }
@@ -138,7 +148,7 @@
             label = String(entry);
             serialized = JSON.stringify(entry);
           }
-        } catch(e) {
+        } catch (e) {
           label = '(error)';
           serialized = String(entry);
         }
@@ -147,7 +157,7 @@
           index: total - slice.length + i,
           event: label || '(sin nombre)',
           hasEvent: hasEvent,
-          data: serialized
+          data: serialized,
         };
       });
     }
@@ -158,7 +168,7 @@
   var data = detectTags();
   window.dispatchEvent(new CustomEvent('gtm_ga4_assistant_result', { detail: data }));
 
-  window.addEventListener('gtm_ga4_assistant_request', function() {
+  window.addEventListener('gtm_ga4_assistant_request', function () {
     var freshData = detectTags();
     window.dispatchEvent(new CustomEvent('gtm_ga4_assistant_result', { detail: freshData }));
   });
