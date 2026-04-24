@@ -1,0 +1,68 @@
+{
+  "name": "tag-assistant-firefox",
+  "version": "1.0.0",
+  "description": "Firefox extension to detect and debug Google Tag Manager (GTM) and Google Analytics 4 (GA4) on any website.",
+  "author": "Axel Tinoco",
+  "license": "MIT",
+  "homepage": "https://github.com/AxelTinoco/tag-assistant-firefox",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AxelTinoco/tag-assistant-firefox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AxelTinoco/tag-assistant-firefox/issues"
+  },
+  "keywords": [
+    "firefox",
+    "webextension",
+    "gtm",
+    "google-tag-manager",
+    "ga4",
+    "google-analytics",
+    "debugging",
+    "devtools"
+  ],
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "start": "web-ext run",
+    "build": "web-ext build --overwrite-dest",
+    "lint:ext": "web-ext lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.3.0",
+    "web-ext": "^8.0.0"
+  },
+  "webExt": {
+    "sourceDir": ".",
+    "artifactsDir": "web-ext-artifacts",
+    "ignoreFiles": [
+      "package.json",
+      "package-lock.json",
+      "pnpm-lock.yaml",
+      ".npmrc",
+      "node_modules",
+      ".eslintrc.json",
+      ".prettierrc.json",
+      ".prettierignore",
+      ".gitignore",
+      "ACCESSIBILITY_PLAN.md",
+      "CONTRIBUTING.md",
+      "CHANGELOG.md",
+      "SECURITY.md",
+      "CODE_OF_CONDUCT.md",
+      ".github"
+    ]
+  }
+}

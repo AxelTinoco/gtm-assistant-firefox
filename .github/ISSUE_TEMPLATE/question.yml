@@ -1,0 +1,24 @@
+name: ❓ Pregunta
+description: Haz una pregunta sobre el uso o funcionamiento de la extensión
+title: "[Question] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de preguntar, revisa el [README](../../README.md) y los issues cerrados. Para discusiones abiertas, considera [Discussions](../../discussions).
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Tu pregunta
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto
+      description: ¿Qué intentas lograr? ¿Qué has probado?
+    validations:
+      required: false

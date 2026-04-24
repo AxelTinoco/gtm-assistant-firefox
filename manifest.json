@@ -3,7 +3,8 @@
   "name": "GTM & GA4 Assistant",
   "version": "1.0.0",
   "description": "Detecta y depura Google Tag Manager y Google Analytics 4 en cualquier sitio web.",
-  "author": "Custom Plugin",
+  "author": "Axel Tinoco",
+  "homepage_url": "https://github.com/AxelTinoco/tag-assistant-firefox",
   "icons": {
     "48": "icons/icon48.png",
     "96": "icons/icon96.png"
