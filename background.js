@@ -8,7 +8,7 @@ function initTabData(tabId) {
       gtmHits: [],
       ga4Hits: [],
       tagData: null,
-      url: ''
+      url: '',
     };
   }
 }
@@ -23,21 +23,25 @@ browser.webRequest.onBeforeRequest.addListener(
     initTabData(tabId);
 
     // GTM requests
-    if (url.includes('googletagmanager.com/gtm.js') ||
-        url.includes('googletagmanager.com/gtag/js')) {
+    if (
+      url.includes('googletagmanager.com/gtm.js') ||
+      url.includes('googletagmanager.com/gtag/js')
+    ) {
       const idMatch = url.match(/[?&]id=(GTM-[A-Z0-9]+|G-[A-Z0-9]+)/);
       tabData[tabId].gtmHits.push({
         type: url.includes('gtm.js') ? 'GTM Container Load' : 'GTAG Script Load',
         id: idMatch ? idMatch[1] : 'N/A',
         url: url,
         timestamp: Date.now(),
-        method: details.method
+        method: details.method,
       });
     }
 
     // GA4 collect hits
-    if (url.includes('google-analytics.com/g/collect') ||
-        url.includes('analytics.google.com/g/collect')) {
+    if (
+      url.includes('google-analytics.com/g/collect') ||
+      url.includes('analytics.google.com/g/collect')
+    ) {
       const params = new URL(url).searchParams;
       tabData[tabId].ga4Hits.push({
         type: 'GA4 Hit',
@@ -46,13 +50,12 @@ browser.webRequest.onBeforeRequest.addListener(
         clientId: params.get('cid') || 'N/A',
         sessionId: params.get('sid') || 'N/A',
         url: url,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
 
     // Universal Analytics (legacy)
-    if (url.includes('google-analytics.com/collect') &&
-        !url.includes('/g/collect')) {
+    if (url.includes('google-analytics.com/collect') && !url.includes('/g/collect')) {
       const params = new URL(url).searchParams;
       tabData[tabId].ga4Hits.push({
         type: 'UA Hit (Legacy)',
@@ -60,18 +63,20 @@ browser.webRequest.onBeforeRequest.addListener(
         measurementId: params.get('tid') || 'N/A',
         clientId: params.get('cid') || 'N/A',
         url: url,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
   },
-  { urls: [
-    "*://www.googletagmanager.com/*",
-    "*://googletagmanager.com/*",
-    "*://www.google-analytics.com/*",
-    "*://google-analytics.com/*",
-    "*://analytics.google.com/*"
-  ]},
-  ["requestBody"]
+  {
+    urls: [
+      '*://www.googletagmanager.com/*',
+      '*://googletagmanager.com/*',
+      '*://www.google-analytics.com/*',
+      '*://google-analytics.com/*',
+      '*://analytics.google.com/*',
+    ],
+  },
+  ['requestBody']
 );
 
 // Recibir mensajes del content script

@@ -5,7 +5,9 @@ let lastData = null;
 function injectScript() {
   const script = document.createElement('script');
   script.src = browser.runtime.getURL('injected.js');
-  script.onload = function() { this.remove(); };
+  script.onload = function () {
+    this.remove();
+  };
   (document.head || document.documentElement).appendChild(script);
 }
 
@@ -13,11 +15,13 @@ function injectScript() {
 window.addEventListener('gtm_ga4_assistant_result', (event) => {
   lastData = event.detail;
   // Enviar al background y al popup
-  browser.runtime.sendMessage({
-    type: 'TAG_DATA',
-    data: lastData,
-    url: window.location.href
-  }).catch(() => {});
+  browser.runtime
+    .sendMessage({
+      type: 'TAG_DATA',
+      data: lastData,
+      url: window.location.href,
+    })
+    .catch(() => {});
 });
 
 // Escuchar solicitudes del popup/background
@@ -50,10 +54,12 @@ const observer = new MutationObserver(() => {
 });
 
 // Notificar al background que la página cargó
-browser.runtime.sendMessage({
-  type: 'PAGE_LOADED',
-  url: window.location.href
-}).catch(() => {});
+browser.runtime
+  .sendMessage({
+    type: 'PAGE_LOADED',
+    url: window.location.href,
+  })
+  .catch(() => {});
 
 // Inyección inicial
 setTimeout(() => {
