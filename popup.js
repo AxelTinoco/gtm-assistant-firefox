@@ -135,7 +135,7 @@ function renderOverview() {
   overviewBadge.textContent = totalTags;
   overviewBadge.setAttribute(
     'aria-label',
-    `${totalTags} Google tag${totalTags !== 1 ? 's' : ''} detected`,
+    `${totalTags} Google tag${totalTags !== 1 ? 's' : ''} detected`
   );
 
   if (!currentData) {
@@ -228,7 +228,7 @@ function renderDataLayer() {
   datalayerBadge.textContent = events.length;
   datalayerBadge.setAttribute(
     'aria-label',
-    `${events.length} dataLayer event${events.length !== 1 ? 's' : ''}`,
+    `${events.length} dataLayer event${events.length !== 1 ? 's' : ''}`
   );
 
   if (events.length === 0) {
@@ -270,7 +270,7 @@ function renderNetwork() {
   networkBadge.textContent = allHits.length;
   networkBadge.setAttribute(
     'aria-label',
-    `${allHits.length} network hit${allHits.length !== 1 ? 's' : ''}`,
+    `${allHits.length} network hit${allHits.length !== 1 ? 's' : ''}`
   );
 
   if (allHits.length === 0) {
