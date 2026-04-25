@@ -13,13 +13,20 @@
         --accent: #7c5cfc;
         --accent-dark: #5b3ed9;
         --accent-dim: #7c5cfc33;
+        /* Lighter accent for text-on-dark — #7C5CFC on #2B3035 is 4.4:1 (fails AA at small sizes).
+           #B5A5FF clears 4.5:1 on bg-secondary AND on accent-dim composites. */
+        --accent-text: #b5a5ff;
         --bg-primary: #212529;
         --bg-secondary: #2b3035;
         --bg-surface: #3d4349;
         --border: #495057;
         --text-primary: #f8f9fa;
-        --text-secondary: #adb5bd;
+        /* Raised from #ADB5BD (4.2:1) to meet AA on --bg-primary */
+        --text-secondary: #c0c7ce;
+        /* Decorative only (icons, borders) — keep original tone */
         --text-muted: #6c757d;
+        /* Text use — #6C757D fails AA (3.3:1 on --bg-primary) */
+        --text-muted-ui: #909aa3;
         --status-success: #34d399;
         --status-error: #f87171;
         --status-warning: #fbbf24;
@@ -98,7 +105,7 @@
       .header-version {
         font-size: 10px;
         font-weight: 400;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
         letter-spacing: 0.3px;
       }
 
@@ -167,7 +174,7 @@
         text-align: center;
         font-size: 11px;
         font-weight: 600;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
         cursor: pointer;
         border-radius: 6px;
         transition: all 0.15s;
@@ -199,7 +206,7 @@
 
       .tab:not(.active) .badge {
         background: rgba(255, 255, 255, 0.08);
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
       }
 
       /* Content */
@@ -245,14 +252,14 @@
       .status-banner.found {
         background: var(--accent-dim);
         border: 1px solid rgba(124, 92, 252, 0.3);
-        color: var(--accent);
+        color: var(--accent-text);
       }
 
       /* Section label */
       .section-label {
         font-size: 10px;
         font-weight: 700;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
         letter-spacing: 1.2px;
         text-transform: uppercase;
         margin-bottom: 8px;
@@ -307,7 +314,7 @@
 
       .gtm-badge {
         background: var(--accent-dim);
-        color: var(--accent);
+        color: var(--accent-text);
         border: 1px solid rgba(124, 92, 252, 0.3);
       }
 
@@ -375,7 +382,7 @@
       }
 
       .prop-key {
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
         font-size: 10px;
       }
 
@@ -419,7 +426,7 @@
 
       .event-index {
         font-size: 9px;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
         min-width: 20px;
       }
 
@@ -468,7 +475,7 @@
       }
 
       .hit-type.gtm-type {
-        color: var(--accent);
+        color: var(--accent-text);
       }
       .hit-type.ga4-type {
         color: var(--status-success);
@@ -488,19 +495,19 @@
         border-radius: 3px;
         padding: 2px 6px;
         font-size: 9px;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
       }
 
       .hit-time {
         margin-left: auto;
         font-size: 9px;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
       }
 
       .empty-state {
         text-align: center;
         padding: 30px 20px;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
       }
 
       .empty-state .icon {
@@ -514,7 +521,7 @@
       .clear-btn {
         background: transparent;
         border: 1px solid var(--border);
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
         border-radius: 4px;
         padding: 3px 8px;
         font-size: 9px;
@@ -541,7 +548,7 @@
       .footer-left {
         font-size: 10px;
         font-weight: 400;
-        color: var(--text-muted);
+        color: var(--text-muted-ui);
         letter-spacing: 0.2px;
       }
 
@@ -586,23 +593,23 @@
     </style>
   </head>
   <body>
-    <div class="accent-line"></div>
+    <div class="accent-line" aria-hidden="true"></div>
 
-    <div class="header">
-      <div class="header-icon">
+    <header class="header">
+      <div class="header-icon" aria-hidden="true">
         <span>&lt;/&gt;</span>
       </div>
       <div class="header-titles">
         <h1>GTM &amp; QA Assistant</h1>
         <span class="header-version">v2.4.1</span>
       </div>
-      <div class="header-status-dot"></div>
-    </div>
+      <div class="header-status-dot" aria-hidden="true"></div>
+    </header>
 
     <div class="divider"></div>
 
     <div class="url-bar">
-      <span class="url-icon">
+      <span class="url-icon" aria-hidden="true">
         <svg
           width="14"
           height="14"
@@ -617,7 +624,7 @@
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
         </svg>
       </span>
-      <span class="url-text" id="urlBar">—</span>
+      <span class="url-text" id="urlBar" aria-label="Current page URL">—</span>
     </div>
 
     <div class="divider"></div>
@@ -663,7 +670,7 @@
       </div>
     </div>
 
-    <div class="content">
+    <main class="content">
       <!-- OVERVIEW TAB -->
       <div
         class="tab-panel active"
@@ -672,11 +679,11 @@
         aria-labelledby="tab-btn-overview"
         tabindex="0"
       >
-        <div id="statusBanner" class="status-banner loading">
-          <span>⏳</span> <span>Analyzing page...</span>
+        <div id="statusBanner" class="status-banner loading" role="status" aria-live="polite">
+          <span aria-hidden="true">⏳</span> <span>Analyzing page...</span>
         </div>
-        <div id="gtmSection"></div>
-        <div id="ga4Section"></div>
+        <div id="gtmSection" aria-live="polite"></div>
+        <div id="ga4Section" aria-live="polite"></div>
       </div>
 
       <!-- DATALAYER TAB -->
@@ -696,12 +703,12 @@
             margin-bottom: 10px;
           "
         >
-          <div class="section-label" style="flex: 1">dataLayer events</div>
+          <h2 class="section-label" style="flex: 1">dataLayer events</h2>
           <button class="clear-btn" id="clearNetworkBtn" aria-label="Clear dataLayer events">
             Clear
           </button>
         </div>
-        <div id="dataLayerList"></div>
+        <div id="dataLayerList" aria-live="polite"></div>
       </div>
 
       <!-- NETWORK TAB -->
@@ -721,17 +728,17 @@
             margin-bottom: 10px;
           "
         >
-          <div class="section-label" style="flex: 1">Captured network hits</div>
+          <h2 class="section-label" style="flex: 1">Captured network hits</h2>
           <button class="clear-btn" id="clearHitsBtn" aria-label="Clear network hits">Clear</button>
         </div>
-        <div id="networkList"></div>
+        <div id="networkList" aria-live="polite"></div>
       </div>
-    </div>
+    </main>
 
-    <div class="footer">
-      <span class="footer-left" id="lastScan">Last scan: —</span>
-      <button class="refresh-btn" id="refreshBtn">Refresh</button>
-    </div>
+    <footer class="footer">
+      <span class="footer-left" id="lastScan" role="status" aria-live="polite">Last scan: —</span>
+      <button class="refresh-btn" id="refreshBtn" aria-label="Refresh analysis">Refresh</button>
+    </footer>
 
     <script src="popup.js"></script>
   </body>
