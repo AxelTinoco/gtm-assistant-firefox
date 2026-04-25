@@ -29,7 +29,7 @@
         align-items: center;
         gap: 12px;
       }
-      .toolbar h2 {
+      .toolbar h1 {
         font-family: 'Syne', sans-serif;
         font-size: 13px;
         font-weight: 800;
@@ -48,6 +48,15 @@
       .toolbar button:hover {
         border-color: #4285f4;
       }
+      .toolbar button[aria-busy='true'] {
+        opacity: 0.7;
+        cursor: progress;
+      }
+      .status-text {
+        color: #8a8ac0;
+        font-size: 10px;
+        margin-left: auto;
+      }
 
       .main {
         display: flex;
@@ -63,8 +72,10 @@
       }
 
       .sidebar-label {
+        font-family: 'JetBrains Mono', monospace;
         font-size: 10px;
-        color: #7070a0;
+        font-weight: 600;
+        color: #8a8ac0;
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-bottom: 6px;
@@ -76,6 +87,12 @@
       }
 
       .tag-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        color: inherit;
+        font: inherit;
         padding: 7px 10px;
         border-radius: 5px;
         cursor: pointer;
@@ -84,7 +101,8 @@
         transition: all 0.15s;
       }
       .tag-item:hover,
-      .tag-item.active {
+      .tag-item.active,
+      .tag-item[aria-current='true'] {
         background: #1a1a25;
         border-color: #2a2a3a;
       }
@@ -98,9 +116,12 @@
       .tag-item .tid.ga4 {
         color: #34a853;
       }
+      .tag-item .tid.muted {
+        color: #8a8ac0;
+      }
       .tag-item .tsub {
         font-size: 9px;
-        color: #7070a0;
+        color: #8a8ac0;
         margin-top: 1px;
       }
 
@@ -120,6 +141,11 @@
         gap: 8px;
       }
 
+      .detail-title.subhead {
+        font-size: 13px;
+        margin-top: 16px;
+      }
+
       .dl-table {
         width: 100%;
         border-collapse: collapse;
@@ -130,7 +156,7 @@
         background: #111118;
         padding: 7px 10px;
         text-align: left;
-        color: #7070a0;
+        color: #8a8ac0;
         font-size: 10px;
         letter-spacing: 0.5px;
         border-bottom: 1px solid #2a2a3a;
@@ -151,7 +177,7 @@
         font-weight: 600;
       }
       .dl-table .json-cell {
-        color: #7070a0;
+        color: #8a8ac0;
         max-width: 400px;
         white-space: pre-wrap;
         word-break: break-all;
@@ -160,24 +186,64 @@
       .empty {
         padding: 40px;
         text-align: center;
-        color: #7070a0;
+        color: #8a8ac0;
+      }
+
+      .empty.sidebar-empty {
+        padding: 20px 0;
+        text-align: left;
+      }
+
+      :focus-visible {
+        outline: 2px solid #4285f4;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+      .toolbar button:focus-visible {
+        outline-color: #fff;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
     </style>
   </head>
   <body>
-    <div class="toolbar">
-      <h2>🏷️ GTM & GA4 ASSISTANT</h2>
-      <button id="refreshBtn">↻ Refrescar</button>
-      <span id="statusText" style="color: #7070a0; font-size: 10px; margin-left: auto"></span>
-    </div>
-    <div class="main">
-      <div class="sidebar" id="sidebar">
+    <header class="toolbar">
+      <h1><span aria-hidden="true">🏷️</span> GTM &amp; GA4 ASSISTANT</h1>
+      <button id="refreshBtn" type="button" aria-label="Refrescar análisis">
+        <span aria-hidden="true">↻</span> Refrescar
+      </button>
+      <span
+        id="statusText"
+        class="status-text"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      ></span>
+    </header>
+    <main class="main">
+      <nav class="sidebar" id="sidebar" aria-label="Tags detectados">
         <div class="empty">Cargando...</div>
-      </div>
-      <div class="detail" id="detail">
+      </nav>
+      <section
+        class="detail"
+        id="detail"
+        aria-label="Detalles del tag"
+        aria-live="polite"
+        aria-atomic="false"
+      >
         <div class="empty">← Selecciona un tag para ver detalles</div>
-      </div>
-    </div>
+      </section>
+    </main>
     <script src="panel.js"></script>
   </body>
 </html>
