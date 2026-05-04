@@ -287,11 +287,7 @@ function renderDataLayer() {
     list.appendChild(
       el('div', { class: 'empty-state' }, [
         el('div', { class: 'icon', role: 'img', 'aria-label': 'No events', text: '📭' }),
-        el('p', {}, [
-          'No dataLayer events found.',
-          el('br'),
-          'This page may not use GTM.',
-        ]),
+        el('p', {}, ['No dataLayer events found.', el('br'), 'This page may not use GTM.']),
       ])
     );
     return;
@@ -346,11 +342,7 @@ function renderNetwork() {
     list.appendChild(
       el('div', { class: 'empty-state' }, [
         el('div', { class: 'icon', role: 'img', 'aria-label': 'No network activity', text: '🌐' }),
-        el('p', {}, [
-          'No network hits captured.',
-          el('br'),
-          'Browse this tab to start capturing.',
-        ]),
+        el('p', {}, ['No network hits captured.', el('br'), 'Browse this tab to start capturing.']),
       ])
     );
     return;
