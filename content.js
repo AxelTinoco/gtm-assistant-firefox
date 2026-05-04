@@ -48,11 +48,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Inyectar al cargar la página
 injectScript();
 
-// También escuchar requests de red para network hits
-const observer = new MutationObserver(() => {
-  // Re-scan si cambia el DOM significativamente (SPAs)
-});
-
 // Notificar al background que la página cargó
 browser.runtime
   .sendMessage({
