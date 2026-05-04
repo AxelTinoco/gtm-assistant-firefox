@@ -12,7 +12,7 @@ function el(tag, attrs = {}, children = []) {
     else node.setAttribute(k, v);
   }
   for (const child of [].concat(children)) {
-    if (child == null || child === false) continue;
+    if (child === null || child === undefined || child === false) continue;
     node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
   }
   return node;
@@ -79,7 +79,7 @@ async function loadData() {
 
 function sidebarButton({ action, id, tidClass, tidText, sub, tidStyle }) {
   const attrs = { type: 'button', class: 'tag-item', 'data-action': action };
-  if (id != null) attrs['data-id'] = id;
+  if (id !== null && id !== undefined) attrs['data-id'] = id;
   return el('button', attrs, [
     el(
       'span',

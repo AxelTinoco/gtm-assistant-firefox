@@ -133,7 +133,7 @@ function el(tag, attrs = {}, children = []) {
     else node.setAttribute(k, v);
   }
   for (const child of [].concat(children)) {
-    if (child == null || child === false) continue;
+    if (child === null || child === undefined || child === false) continue;
     node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
   }
   return node;
@@ -147,7 +147,7 @@ function setBanner(node, className, iconText, message, strongValue) {
   clear(node);
   node.className = className;
   node.appendChild(el('span', { 'aria-hidden': 'true', text: iconText }));
-  if (strongValue != null) {
+  if (strongValue !== null && strongValue !== undefined) {
     const span = el('span', {}, [
       'Detected ',
       el('strong', { text: String(strongValue) }),
