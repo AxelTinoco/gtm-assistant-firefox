@@ -121,6 +121,46 @@ function renderUI() {
   renderNetwork();
 }
 
+// DOM helpers
+function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k === 'style') node.setAttribute('style', v);
+    else if (k.startsWith('aria-') || k === 'role' || k === 'hidden' || k === 'tabindex')
+      node.setAttribute(k, v);
+    else node.setAttribute(k, v);
+  }
+  for (const child of [].concat(children)) {
+    if (child == null || child === false) continue;
+    node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
+  }
+  return node;
+}
+
+function clear(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+}
+
+function setBanner(node, className, iconText, message, strongValue) {
+  clear(node);
+  node.className = className;
+  node.appendChild(el('span', { 'aria-hidden': 'true', text: iconText }));
+  if (strongValue != null) {
+    const span = el('span', {}, [
+      'Detected ',
+      el('strong', { text: String(strongValue) }),
+      ` ${message}`,
+    ]);
+    node.appendChild(document.createTextNode(' '));
+    node.appendChild(span);
+  } else {
+    node.appendChild(document.createTextNode(' '));
+    node.appendChild(el('span', { text: message }));
+  }
+}
+
 function renderOverview() {
   const gtmSection = document.getElementById('gtmSection');
   const ga4Section = document.getElementById('ga4Section');
@@ -139,85 +179,95 @@ function renderOverview() {
   );
 
   if (!currentData) {
-    statusBanner.className = 'status-banner not-found';
-    statusBanner.innerHTML =
-      '<span aria-hidden="true">⚠️</span> <span>Could not analyze this page. Is it a special browser page?</span>';
-    gtmSection.innerHTML = '';
-    ga4Section.innerHTML = '';
+    setBanner(
+      statusBanner,
+      'status-banner not-found',
+      '⚠️',
+      'Could not analyze this page. Is it a special browser page?'
+    );
+    clear(gtmSection);
+    clear(ga4Section);
     return;
   }
 
   if (totalTags === 0) {
-    statusBanner.className = 'status-banner not-found';
-    statusBanner.innerHTML =
-      '<span aria-hidden="true">🔍</span> <span>No GTM or GA4 detected on this page</span>';
+    setBanner(statusBanner, 'status-banner not-found', '🔍', 'No GTM or GA4 detected on this page');
   } else {
-    statusBanner.className = 'status-banner found';
-    statusBanner.innerHTML = `<span aria-hidden="true">✅</span> <span>Detected <strong>${totalTags}</strong> Google tag${totalTags !== 1 ? 's' : ''}</span>`;
+    const plural = totalTags !== 1 ? 's' : '';
+    setBanner(statusBanner, 'status-banner found', '✅', `Google tag${plural}`, totalTags);
   }
 
   // GTM Cards
+  clear(gtmSection);
   if (gtmItems.length > 0) {
-    let html = '<h2 class="section-label">Google Tag Manager</h2>';
+    gtmSection.appendChild(el('h2', { class: 'section-label', text: 'Google Tag Manager' }));
     gtmItems.forEach((gtm) => {
-      html += `
-        <div class="card">
-          <button class="card-header" onclick="toggleCard(this)" aria-expanded="false" aria-label="Toggle details for ${escHtml(gtm.id)}">
-            <span class="tag-badge gtm-badge">GTM</span>
-            <span class="card-title">${escHtml(gtm.id)}</span>
-            <span class="status-dot"></span>
-            <span class="card-chevron" aria-hidden="true">▶</span>
-          </button>
-          <div class="card-body">
-            <div class="prop-row">
-              <span class="prop-key">Container ID</span>
-              <span class="prop-val">${escHtml(gtm.id)}</span>
-            </div>
-            <div class="prop-row">
-              <span class="prop-key">Status</span>
-              <span class="prop-val">${escHtml(gtm.status)}</span>
-            </div>
-            <div class="prop-row">
-              <span class="prop-key">Version</span>
-              <span class="prop-val">${escHtml(gtm.version || 'N/A')}</span>
-            </div>
-          </div>
-        </div>`;
+      gtmSection.appendChild(
+        buildCard({
+          badgeClass: 'gtm-badge',
+          badgeText: 'GTM',
+          title: gtm.id,
+          rows: [
+            ['Container ID', gtm.id],
+            ['Status', gtm.status],
+            ['Version', gtm.version || 'N/A'],
+          ],
+        })
+      );
     });
-    gtmSection.innerHTML = html;
-  } else {
-    gtmSection.innerHTML = '';
   }
 
   // GA4 Cards
+  clear(ga4Section);
   if (ga4Items.length > 0) {
-    let html = '<h2 class="section-label" style="margin-top:10px">Google Analytics 4</h2>';
+    ga4Section.appendChild(
+      el('h2', { class: 'section-label', style: 'margin-top:10px', text: 'Google Analytics 4' })
+    );
     ga4Items.forEach((ga4) => {
-      html += `
-        <div class="card">
-          <button class="card-header" onclick="toggleCard(this)" aria-expanded="false" aria-label="Toggle details for ${escHtml(ga4.id || ga4.method || 'GA4 Active')}">
-            <span class="tag-badge ga4-badge">GA4</span>
-            <span class="card-title">${escHtml(ga4.id || ga4.method || 'GA4 Active')}</span>
-            <span class="status-dot"></span>
-            <span class="card-chevron" aria-hidden="true">▶</span>
-          </button>
-          <div class="card-body">
-            ${ga4.id ? `<div class="prop-row"><span class="prop-key">Measurement ID</span><span class="prop-val">${escHtml(ga4.id)}</span></div>` : ''}
-            <div class="prop-row">
-              <span class="prop-key">Method</span>
-              <span class="prop-val">${escHtml(ga4.method || 'DOM script')}</span>
-            </div>
-            <div class="prop-row">
-              <span class="prop-key">Status</span>
-              <span class="prop-val">${escHtml(ga4.status || 'Detected')}</span>
-            </div>
-          </div>
-        </div>`;
+      const rows = [];
+      if (ga4.id) rows.push(['Measurement ID', ga4.id]);
+      rows.push(['Method', ga4.method || 'DOM script']);
+      rows.push(['Status', ga4.status || 'Detected']);
+      ga4Section.appendChild(
+        buildCard({
+          badgeClass: 'ga4-badge',
+          badgeText: 'GA4',
+          title: ga4.id || ga4.method || 'GA4 Active',
+          rows,
+        })
+      );
     });
-    ga4Section.innerHTML = html;
-  } else {
-    ga4Section.innerHTML = '';
   }
+}
+
+function buildCard({ badgeClass, badgeText, title, rows }) {
+  const chevron = el('span', { class: 'card-chevron', 'aria-hidden': 'true', text: '▶' });
+  const header = el(
+    'button',
+    {
+      class: 'card-header',
+      'aria-expanded': 'false',
+      'aria-label': `Toggle details for ${title}`,
+    },
+    [
+      el('span', { class: `tag-badge ${badgeClass}`, text: badgeText }),
+      el('span', { class: 'card-title', text: String(title) }),
+      el('span', { class: 'status-dot' }),
+      chevron,
+    ]
+  );
+  const body = el(
+    'div',
+    { class: 'card-body' },
+    rows.map(([key, val]) =>
+      el('div', { class: 'prop-row' }, [
+        el('span', { class: 'prop-key', text: key }),
+        el('span', { class: 'prop-val', text: String(val) }),
+      ])
+    )
+  );
+  header.addEventListener('click', () => toggleCard(header));
+  return el('div', { class: 'card' }, [header, body]);
 }
 
 function renderDataLayer() {
@@ -231,33 +281,50 @@ function renderDataLayer() {
     `${events.length} dataLayer event${events.length !== 1 ? 's' : ''}`
   );
 
+  clear(list);
+
   if (events.length === 0) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="icon" role="img" aria-label="No events">📭</div>
-        <p>No dataLayer events found.<br>This page may not use GTM.</p>
-      </div>`;
+    list.appendChild(
+      el('div', { class: 'empty-state' }, [
+        el('div', { class: 'icon', role: 'img', 'aria-label': 'No events', text: '📭' }),
+        el('p', {}, [
+          'No dataLayer events found.',
+          el('br'),
+          'This page may not use GTM.',
+        ]),
+      ])
+    );
     return;
   }
 
-  let html = '';
   // Show most recent first
   const reversed = [...events].reverse();
   reversed.forEach((event) => {
     const nameColor = event.hasEvent ? '#B5A5FF' : '#FBBF24';
-    html += `
-      <div class="event-item">
-        <button class="event-header" onclick="toggleEvent(this)" aria-expanded="false" aria-label="Toggle payload for event ${escHtml(event.event)}">
-          <span class="event-index" aria-hidden="true">#${event.index}</span>
-          <span class="event-name" style="color:${nameColor}">${escHtml(event.event)}</span>
-          <span class="card-chevron" aria-hidden="true">▶</span>
-        </button>
-        <div class="event-body">
-          <div class="event-json">${escHtml(event.data)}</div>
-        </div>
-      </div>`;
+    const chevron = el('span', { class: 'card-chevron', 'aria-hidden': 'true', text: '▶' });
+    const header = el(
+      'button',
+      {
+        class: 'event-header',
+        'aria-expanded': 'false',
+        'aria-label': `Toggle payload for event ${event.event}`,
+      },
+      [
+        el('span', { class: 'event-index', 'aria-hidden': 'true', text: `#${event.index}` }),
+        el('span', {
+          class: 'event-name',
+          style: `color:${nameColor}`,
+          text: String(event.event),
+        }),
+        chevron,
+      ]
+    );
+    const body = el('div', { class: 'event-body' }, [
+      el('div', { class: 'event-json', text: String(event.data) }),
+    ]);
+    header.addEventListener('click', () => toggleEvent(header));
+    list.appendChild(el('div', { class: 'event-item' }, [header, body]));
   });
-  list.innerHTML = html;
 }
 
 function renderNetwork() {
@@ -273,16 +340,22 @@ function renderNetwork() {
     `${allHits.length} network hit${allHits.length !== 1 ? 's' : ''}`
   );
 
+  clear(list);
+
   if (allHits.length === 0) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="icon" role="img" aria-label="No network activity">🌐</div>
-        <p>No network hits captured.<br>Browse this tab to start capturing.</p>
-      </div>`;
+    list.appendChild(
+      el('div', { class: 'empty-state' }, [
+        el('div', { class: 'icon', role: 'img', 'aria-label': 'No network activity', text: '🌐' }),
+        el('p', {}, [
+          'No network hits captured.',
+          el('br'),
+          'Browse this tab to start capturing.',
+        ]),
+      ])
+    );
     return;
   }
 
-  let html = '';
   allHits.forEach((hit) => {
     const time = new Date(hit.timestamp).toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -295,21 +368,29 @@ function renderNetwork() {
         ? 'ua-type'
         : 'ga4-type';
 
-    html += `
-      <div class="hit-item">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div class="hit-type ${typeClass}">${escHtml(hit.type)}</div>
-          <div class="hit-time">${time}</div>
-        </div>
-        <div class="hit-meta">
-          ${hit.id ? `<span class="hit-chip">ID: ${escHtml(hit.id)}</span>` : ''}
-          ${hit.eventName && hit.eventName !== 'N/A' ? `<span class="hit-chip">event: ${escHtml(hit.eventName)}</span>` : ''}
-          ${hit.measurementId && hit.measurementId !== 'N/A' ? `<span class="hit-chip">tid: ${escHtml(hit.measurementId)}</span>` : ''}
-          ${hit.clientId && hit.clientId !== 'N/A' ? `<span class="hit-chip">cid: ${escHtml(hit.clientId.substring(0, 12))}...</span>` : ''}
-        </div>
-      </div>`;
+    const topRow = el(
+      'div',
+      { style: 'display:flex;align-items:center;justify-content:space-between' },
+      [
+        el('div', { class: `hit-type ${typeClass}`, text: String(hit.type) }),
+        el('div', { class: 'hit-time', text: time }),
+      ]
+    );
+
+    const chips = [];
+    if (hit.id) chips.push(el('span', { class: 'hit-chip', text: `ID: ${hit.id}` }));
+    if (hit.eventName && hit.eventName !== 'N/A')
+      chips.push(el('span', { class: 'hit-chip', text: `event: ${hit.eventName}` }));
+    if (hit.measurementId && hit.measurementId !== 'N/A')
+      chips.push(el('span', { class: 'hit-chip', text: `tid: ${hit.measurementId}` }));
+    if (hit.clientId && hit.clientId !== 'N/A')
+      chips.push(
+        el('span', { class: 'hit-chip', text: `cid: ${hit.clientId.substring(0, 12)}...` })
+      );
+
+    const meta = el('div', { class: 'hit-meta' }, chips);
+    list.appendChild(el('div', { class: 'hit-item' }, [topRow, meta]));
   });
-  list.innerHTML = html;
 }
 
 function toggleCard(header) {
@@ -327,18 +408,6 @@ function toggleEvent(header) {
   chevron.classList.toggle('open');
   header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 }
-
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// Exponer para onclick
-window.toggleCard = toggleCard;
-window.toggleEvent = toggleEvent;
 
 // Iniciar
 loadData();

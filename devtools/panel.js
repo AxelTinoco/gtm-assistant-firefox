@@ -2,11 +2,53 @@
 let currentData = null;
 let allNetworkData = null;
 
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+// DOM helpers
+function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k === 'style') node.setAttribute('style', v);
+    else node.setAttribute(k, v);
+  }
+  for (const child of [].concat(children)) {
+    if (child == null || child === false) continue;
+    node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
+  }
+  return node;
+}
+
+function clear(node) {
+  while (node.firstChild) node.removeChild(node.firstChild);
+}
+
+function table(headers, rowsData) {
+  const thead = el(
+    'thead',
+    {},
+    el(
+      'tr',
+      {},
+      headers.map((h) => el('th', { scope: 'col', text: h }))
+    )
+  );
+  const tbody = el(
+    'tbody',
+    {},
+    rowsData.map((cells) =>
+      el(
+        'tr',
+        {},
+        cells.map((cell) => {
+          if (cell && typeof cell === 'object' && 'node' in cell) return cell.node;
+          if (cell && typeof cell === 'object' && 'text' in cell)
+            return el('td', { class: cell.class || '', text: String(cell.text) });
+          return el('td', { text: String(cell ?? '') });
+        })
+      )
+    )
+  );
+  return el('table', { class: 'dl-table' }, [thead, tbody]);
 }
 
 async function loadData() {
@@ -35,6 +77,19 @@ async function loadData() {
   }
 }
 
+function sidebarButton({ action, id, tidClass, tidText, sub, tidStyle }) {
+  const attrs = { type: 'button', class: 'tag-item', 'data-action': action };
+  if (id != null) attrs['data-id'] = id;
+  return el('button', attrs, [
+    el(
+      'span',
+      tidStyle ? { class: `tid ${tidClass}`, style: tidStyle } : { class: `tid ${tidClass}` },
+      tidText
+    ),
+    el('span', { class: 'tsub' }, sub),
+  ]);
+}
+
 function renderSidebar() {
   const sidebar = document.getElementById('sidebar');
   const gtm = currentData?.gtm || [];
@@ -42,57 +97,81 @@ function renderSidebar() {
   const ga4Hits = allNetworkData?.ga4Hits || [];
   const gtmHits = allNetworkData?.gtmHits || [];
 
-  let html = '';
+  clear(sidebar);
+  let added = false;
 
   if (gtm.length > 0) {
-    html += '<h2 class="sidebar-label">Google Tag Manager</h2>';
+    sidebar.appendChild(el('h2', { class: 'sidebar-label', text: 'Google Tag Manager' }));
     gtm.forEach((g) => {
-      html += `<button type="button" class="tag-item" data-action="gtm" data-id="${escHtml(g.id)}">
-        <span class="tid gtm">${escHtml(g.id)}</span>
-        <span class="tsub">${escHtml(g.status)} • v${escHtml(g.version)}</span>
-      </button>`;
+      sidebar.appendChild(
+        sidebarButton({
+          action: 'gtm',
+          id: g.id,
+          tidClass: 'gtm',
+          tidText: String(g.id),
+          sub: `${g.status} • v${g.version}`,
+        })
+      );
     });
+    added = true;
   }
 
   if (ga4.length > 0) {
-    html += '<h2 class="sidebar-label">Google Analytics 4</h2>';
+    sidebar.appendChild(el('h2', { class: 'sidebar-label', text: 'Google Analytics 4' }));
     ga4.forEach((g) => {
       const key = g.id || g.method;
-      html += `<button type="button" class="tag-item" data-action="ga4" data-id="${escHtml(key)}">
-        <span class="tid ga4">${escHtml(g.id || 'GA4')}</span>
-        <span class="tsub">${escHtml(g.method || 'Script DOM')} • ${escHtml(g.status)}</span>
-      </button>`;
+      sidebar.appendChild(
+        sidebarButton({
+          action: 'ga4',
+          id: key,
+          tidClass: 'ga4',
+          tidText: String(g.id || 'GA4'),
+          sub: `${g.method || 'Script DOM'} • ${g.status}`,
+        })
+      );
     });
+    added = true;
   }
 
   if (currentData?.dataLayer?.length > 0) {
-    html += '<h2 class="sidebar-label">DataLayer</h2>';
-    html += `<button type="button" class="tag-item" data-action="datalayer">
-      <span class="tid" style="color:#fbbc04">dataLayer</span>
-      <span class="tsub">${currentData.dataLayer.length} eventos</span>
-    </button>`;
+    sidebar.appendChild(el('h2', { class: 'sidebar-label', text: 'DataLayer' }));
+    sidebar.appendChild(
+      sidebarButton({
+        action: 'datalayer',
+        tidClass: '',
+        tidStyle: 'color:#fbbc04',
+        tidText: 'dataLayer',
+        sub: `${currentData.dataLayer.length} eventos`,
+      })
+    );
+    added = true;
   }
 
   if (ga4Hits.length > 0 || gtmHits.length > 0) {
-    html += '<h2 class="sidebar-label">Network Hits</h2>';
-    html += `<button type="button" class="tag-item" data-action="network">
-      <span class="tid muted">Hits capturados</span>
-      <span class="tsub">${ga4Hits.length + gtmHits.length} requests</span>
-    </button>`;
+    sidebar.appendChild(el('h2', { class: 'sidebar-label', text: 'Network Hits' }));
+    sidebar.appendChild(
+      sidebarButton({
+        action: 'network',
+        tidClass: 'muted',
+        tidText: 'Hits capturados',
+        sub: `${ga4Hits.length + gtmHits.length} requests`,
+      })
+    );
+    added = true;
   }
 
-  if (!html) {
-    html = '<div class="empty sidebar-empty">No se detectaron tags en esta página</div>';
+  if (!added) {
+    sidebar.appendChild(
+      el('div', { class: 'empty sidebar-empty', text: 'No se detectaron tags en esta página' })
+    );
   }
-
-  sidebar.innerHTML = html;
 }
 
 function setActiveItem(button) {
   const sidebar = document.getElementById('sidebar');
-  sidebar.querySelectorAll('.tag-item[aria-current="true"]').forEach((el) => {
-    el.removeAttribute('aria-current');
-    el.classList.remove('active');
+  sidebar.querySelectorAll('.tag-item[aria-current="true"]').forEach((node) => {
+    node.removeAttribute('aria-current');
+    node.classList.remove('active');
   });
   if (button) {
     button.setAttribute('aria-current', 'true');
@@ -100,54 +179,52 @@ function setActiveItem(button) {
   }
 }
 
+function detailTitle(iconColor, iconChar, titleText) {
+  return el('h2', { class: 'detail-title' }, [
+    el('span', { 'aria-hidden': 'true', style: `color:${iconColor}`, text: iconChar }),
+    ` ${titleText}`,
+  ]);
+}
+
 function showDataLayer() {
   const detail = document.getElementById('detail');
   const events = currentData?.dataLayer || [];
+  clear(detail);
 
   if (!events.length) {
-    detail.innerHTML = '<div class="empty">DataLayer vacío</div>';
+    detail.appendChild(el('div', { class: 'empty', text: 'DataLayer vacío' }));
     return;
   }
 
+  detail.appendChild(detailTitle('#fbbc04', '📦', 'DataLayer Events'));
   const rows = [...events]
     .reverse()
-    .map(
-      (e) =>
-        `<tr>
-      <td>${e.index}</td>
-      <td class="event-cell">${escHtml(e.event)}</td>
-      <td class="json-cell">${escHtml(e.data)}</td>
-    </tr>`
-    )
-    .join('');
-
-  detail.innerHTML = `
-    <h2 class="detail-title">
-      <span aria-hidden="true" style="color:#fbbc04">📦</span> DataLayer Events
-    </h2>
-    <table class="dl-table">
-      <thead><tr><th scope="col">#</th><th scope="col">Event</th><th scope="col">Payload</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+    .map((e) => [
+      String(e.index),
+      { text: String(e.event), class: 'event-cell' },
+      { text: String(e.data), class: 'json-cell' },
+    ]);
+  detail.appendChild(table(['#', 'Event', 'Payload'], rows));
 }
 
 function showGTMDetail(id) {
   const gtm = currentData?.gtm?.find((g) => g.id === id);
   if (!gtm) return;
   const detail = document.getElementById('detail');
-  detail.innerHTML = `
-    <h2 class="detail-title">
-      <span aria-hidden="true" style="color:#4285f4">📦</span> ${escHtml(gtm.id)}
-    </h2>
-    <table class="dl-table">
-      <thead><tr><th scope="col">Propiedad</th><th scope="col">Valor</th></tr></thead>
-      <tbody>
-        <tr><td>Container ID</td><td class="event-cell">${escHtml(gtm.id)}</td></tr>
-        <tr><td>Estado</td><td>${escHtml(gtm.status)}</td></tr>
-        <tr><td>Versión</td><td>${escHtml(gtm.version || 'N/A')}</td></tr>
-        <tr><td>DataLayer eventos</td><td>${currentData?.dataLayer?.length || 0}</td></tr>
-      </tbody>
-    </table>`;
+  clear(detail);
+
+  detail.appendChild(detailTitle('#4285f4', '📦', String(gtm.id)));
+  detail.appendChild(
+    table(
+      ['Propiedad', 'Valor'],
+      [
+        ['Container ID', { text: String(gtm.id), class: 'event-cell' }],
+        ['Estado', String(gtm.status)],
+        ['Versión', String(gtm.version || 'N/A')],
+        ['DataLayer eventos', String(currentData?.dataLayer?.length || 0)],
+      ]
+    )
+  );
 }
 
 function showGA4Detail(id) {
@@ -155,42 +232,29 @@ function showGA4Detail(id) {
   if (!ga4) return;
   const hits = allNetworkData?.ga4Hits?.filter((h) => h.measurementId === ga4.id) || [];
   const detail = document.getElementById('detail');
+  clear(detail);
 
-  let hitsHtml = '';
+  detail.appendChild(detailTitle('#34a853', '📊', String(ga4.id || 'GA4')));
+
+  const rows = [];
+  if (ga4.id) rows.push(['Measurement ID', { text: String(ga4.id), class: 'event-cell' }]);
+  rows.push(['Método de implementación', String(ga4.method || 'DOM script')]);
+  rows.push(['Estado', String(ga4.status || 'Detectado')]);
+  rows.push(['Hits capturados', String(hits.length)]);
+  detail.appendChild(table(['Propiedad', 'Valor'], rows));
+
   if (hits.length > 0) {
-    hitsHtml = `
-      <h2 class="detail-title subhead">Network Hits (${hits.length})</h2>
-      <table class="dl-table">
-        <thead><tr><th scope="col">Evento</th><th scope="col">Session ID</th><th scope="col">Client ID</th><th scope="col">Hora</th></tr></thead>
-        <tbody>
-          ${hits
-            .map(
-              (h) => `<tr>
-            <td class="event-cell">${escHtml(h.eventName)}</td>
-            <td>${escHtml(h.sessionId || 'N/A')}</td>
-            <td>${escHtml((h.clientId || 'N/A').substring(0, 16))}...</td>
-            <td>${new Date(h.timestamp).toLocaleTimeString('es-MX')}</td>
-          </tr>`
-            )
-            .join('')}
-        </tbody>
-      </table>`;
+    detail.appendChild(
+      el('h2', { class: 'detail-title subhead', text: `Network Hits (${hits.length})` })
+    );
+    const hitRows = hits.map((h) => [
+      { text: String(h.eventName), class: 'event-cell' },
+      String(h.sessionId || 'N/A'),
+      `${String((h.clientId || 'N/A').substring(0, 16))}...`,
+      new Date(h.timestamp).toLocaleTimeString('es-MX'),
+    ]);
+    detail.appendChild(table(['Evento', 'Session ID', 'Client ID', 'Hora'], hitRows));
   }
-
-  detail.innerHTML = `
-    <h2 class="detail-title">
-      <span aria-hidden="true" style="color:#34a853">📊</span> ${escHtml(ga4.id || 'GA4')}
-    </h2>
-    <table class="dl-table">
-      <thead><tr><th scope="col">Propiedad</th><th scope="col">Valor</th></tr></thead>
-      <tbody>
-        ${ga4.id ? `<tr><td>Measurement ID</td><td class="event-cell">${escHtml(ga4.id)}</td></tr>` : ''}
-        <tr><td>Método de implementación</td><td>${escHtml(ga4.method || 'DOM script')}</td></tr>
-        <tr><td>Estado</td><td>${escHtml(ga4.status || 'Detectado')}</td></tr>
-        <tr><td>Hits capturados</td><td>${hits.length}</td></tr>
-      </tbody>
-    </table>
-    ${hitsHtml}`;
 }
 
 function showNetworkHits() {
@@ -198,30 +262,27 @@ function showNetworkHits() {
   const gtmHits = allNetworkData?.gtmHits || [];
   const ga4Hits = allNetworkData?.ga4Hits || [];
   const all = [...gtmHits, ...ga4Hits].sort((a, b) => b.timestamp - a.timestamp);
+  clear(detail);
 
   if (!all.length) {
-    detail.innerHTML = '<div class="empty">Sin hits capturados</div>';
+    detail.appendChild(el('div', { class: 'empty', text: 'Sin hits capturados' }));
     return;
   }
 
-  const rows = all
-    .map((h) => {
-      const time = new Date(h.timestamp).toLocaleTimeString('es-MX');
-      return `<tr>
-      <td class="event-cell">${escHtml(h.type)}</td>
-      <td>${escHtml(h.id || h.measurementId || 'N/A')}</td>
-      <td>${escHtml(h.eventName || '—')}</td>
-      <td>${time}</td>
-    </tr>`;
-    })
-    .join('');
+  detail.appendChild(
+    el('h2', { class: 'detail-title' }, [
+      el('span', { 'aria-hidden': 'true', text: '🌐' }),
+      ' Network Hits',
+    ])
+  );
 
-  detail.innerHTML = `
-    <h2 class="detail-title"><span aria-hidden="true">🌐</span> Network Hits</h2>
-    <table class="dl-table">
-      <thead><tr><th scope="col">Tipo</th><th scope="col">ID</th><th scope="col">Evento</th><th scope="col">Hora</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+  const rows = all.map((h) => [
+    { text: String(h.type), class: 'event-cell' },
+    String(h.id || h.measurementId || 'N/A'),
+    String(h.eventName || '—'),
+    new Date(h.timestamp).toLocaleTimeString('es-MX'),
+  ]);
+  detail.appendChild(table(['Tipo', 'ID', 'Evento', 'Hora'], rows));
 }
 
 document.getElementById('sidebar').addEventListener('click', (event) => {
