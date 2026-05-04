@@ -1,6 +1,6 @@
 {
   "name": "tag-assistant-firefox",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Firefox extension to detect and debug Google Tag Manager (GTM) and Google Analytics 4 (GA4) on any website.",
   "author": "Axel Tinoco",
   "license": "MIT",
