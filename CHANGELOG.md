@@ -6,11 +6,27 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-05-04
+
+### Added
+- `browser_specific_settings.gecko.id` y `data_collection_permissions` en `manifest.json` requeridos por AMO
+
+### Changed
+- `popup.js` y `devtools/panel.js`: render con APIs del DOM (`createElement`/`textContent`) en lugar de `innerHTML` para silenciar avisos de validación de AMO
+- `devtools/devtools.html`: script en línea movido a `devtools/devtools.js` (CSP)
+
+## [1.1.0] - 2026-04-25
+
 ### Added
 - Licencia MIT, README completo, `.gitignore`
 - Configuración de `package.json` con pnpm, ESLint, Prettier y web-ext
 - `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`
 - Plantillas de issues y pull requests
+- Mejoras de accesibilidad WCAG 2.1 (Phase 1) en popup y panel de DevTools: roles ARIA, navegación por teclado, `aria-expanded` en cards/eventos, `role="tablist"` y patrón de tabs accesible, estilos `:focus-visible`
+
+### Changed
+- Migración a ESLint flat config
+- Formateo Prettier aplicado en toda la base de código
 
 ## [1.0.0] - 2026-03-02
 
@@ -20,5 +36,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - Popup con resumen de la pestaña activa
 - Panel de DevTools para inspección detallada
 
-[Unreleased]: https://github.com/AxelTinoco/tag-assistant-firefox/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/AxelTinoco/tag-assistant-firefox/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/AxelTinoco/tag-assistant-firefox/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/AxelTinoco/tag-assistant-firefox/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/AxelTinoco/tag-assistant-firefox/releases/tag/v1.0.0
