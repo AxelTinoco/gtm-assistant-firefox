@@ -10,78 +10,11 @@
     />
     <link rel="stylesheet" href="ui.css" />
     <style>
-      /* Popup-specific sizing (shared styles live in ui.css) */
+      /* Sidebar-specific sizing (shared styles live in ui.css).
+         Use 100% width (not 100vw) so the panel never grows a horizontal scrollbar. */
       body {
-        width: 340px;
-        height: 540px;
-      }
-
-      /* Toggle to open/close this panel as the docked Firefox sidebar (popup only) */
-      .sidebar-toggle {
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
         width: 100%;
-        padding: 9px 16px;
-        background: var(--accent-dim);
-        border: none;
-        border-top: 1px solid rgba(124, 92, 252, 0.25);
-        border-bottom: 1px solid rgba(124, 92, 252, 0.25);
-        color: var(--accent-text);
-        font-family: 'Inter', sans-serif;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        text-align: left;
-        transition: background 0.15s;
-      }
-
-      .sidebar-toggle:hover {
-        background: rgba(124, 92, 252, 0.22);
-      }
-
-      .sidebar-toggle svg {
-        flex-shrink: 0;
-      }
-
-      .sidebar-toggle-label {
-        flex: 1;
-      }
-
-      .sidebar-toggle:focus-visible {
-        outline: 2px solid #fff;
-        outline-offset: -2px;
-      }
-
-      /* Visual switch track + knob (state driven by aria-checked on the button) */
-      .sidebar-switch {
-        position: relative;
-        width: 32px;
-        height: 18px;
-        border-radius: 9px;
-        background: rgba(255, 255, 255, 0.2);
-        flex-shrink: 0;
-        transition: background 0.18s;
-      }
-
-      .sidebar-toggle[aria-checked='true'] .sidebar-switch {
-        background: var(--accent);
-      }
-
-      .sidebar-switch-knob {
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: #fff;
-        transition: transform 0.18s;
-      }
-
-      .sidebar-toggle[aria-checked='true'] .sidebar-switch-knob {
-        transform: translateX(14px);
+        height: 100vh;
       }
     </style>
   </head>
@@ -121,35 +54,6 @@
     </div>
 
     <div class="divider"></div>
-
-    <button
-      class="sidebar-toggle"
-      id="sidebarToggle"
-      type="button"
-      role="switch"
-      aria-checked="false"
-      aria-label="Toggle the GTM &amp; GA4 sidebar panel"
-      title="Open or close this panel in the Firefox sidebar"
-    >
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <line x1="9" y1="3" x2="9" y2="21" />
-      </svg>
-      <span class="sidebar-toggle-label" id="sidebarToggleLabel">Open in sidebar</span>
-      <span class="sidebar-switch" aria-hidden="true">
-        <span class="sidebar-switch-knob"></span>
-      </span>
-    </button>
 
     <div class="tab-container">
       <div class="tab-segment" role="tablist" aria-label="Extension sections">
@@ -263,6 +167,6 @@
     </footer>
 
     <script src="ui.js"></script>
-    <script src="popup.js"></script>
+    <script src="sidebar.js"></script>
   </body>
 </html>
