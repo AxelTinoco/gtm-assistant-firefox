@@ -134,6 +134,25 @@
             Clear
           </button>
         </div>
+        <button
+          class="preserve-toggle"
+          type="button"
+          role="switch"
+          aria-checked="false"
+          aria-label="Keep captured data when the page reloads"
+          title="Keep captured hits and dataLayer events when the page reloads"
+        >
+          <span class="preserve-toggle-icon" aria-hidden="true">🔄</span>
+          <span class="preserve-toggle-text">
+            <span class="preserve-toggle-title">Keep data on reload</span>
+            <span class="preserve-toggle-sub"
+              >Don't clear hits &amp; dataLayer when the page refreshes</span
+            >
+          </span>
+          <span class="preserve-switch" aria-hidden="true">
+            <span class="preserve-switch-knob"></span>
+          </span>
+        </button>
         <div id="dataLayerList" aria-live="polite"></div>
       </div>
 
@@ -157,6 +176,25 @@
           <h2 class="section-label" style="flex: 1">Captured network hits</h2>
           <button class="clear-btn" id="clearHitsBtn" aria-label="Clear network hits">Clear</button>
         </div>
+        <button
+          class="preserve-toggle"
+          type="button"
+          role="switch"
+          aria-checked="false"
+          aria-label="Keep captured data when the page reloads"
+          title="Keep captured hits and dataLayer events when the page reloads"
+        >
+          <span class="preserve-toggle-icon" aria-hidden="true">🔄</span>
+          <span class="preserve-toggle-text">
+            <span class="preserve-toggle-title">Keep data on reload</span>
+            <span class="preserve-toggle-sub"
+              >Don't clear hits &amp; dataLayer when the page refreshes</span
+            >
+          </span>
+          <span class="preserve-switch" aria-hidden="true">
+            <span class="preserve-switch-knob"></span>
+          </span>
+        </button>
         <div id="networkList" aria-live="polite"></div>
       </div>
     </main>
