@@ -97,6 +97,37 @@ function initUI() {
         .then(() => loadData());
     }
   });
+
+  // "Keep data on reload" toggles — persist a flag in storage.local that the
+  // background reads to skip clearing captured hits AND the dataLayer history
+  // on PAGE_LOADED. The same toggle is shown in the DataLayer and Network tabs;
+  // both stay in sync (and mirror changes from the popup/sidebar/DevTools).
+  const preserveToggles = Array.from(document.querySelectorAll('.preserve-toggle'));
+  if (preserveToggles.length) {
+    const paint = (on) => {
+      preserveToggles.forEach((t) => t.setAttribute('aria-checked', String(Boolean(on))));
+    };
+
+    browser.storage.local
+      .get('preserveOnReload')
+      .then(({ preserveOnReload }) => paint(preserveOnReload))
+      .catch(() => {});
+
+    preserveToggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const on = toggle.getAttribute('aria-checked') === 'true';
+        const next = !on;
+        paint(next);
+        browser.storage.local.set({ preserveOnReload: next }).catch(() => paint(on));
+      });
+    });
+
+    browser.storage.onChanged.addListener((changes, area) => {
+      if (area === 'local' && 'preserveOnReload' in changes) {
+        paint(changes.preserveOnReload.newValue);
+      }
+    });
+  }
 }
 
 async function loadData() {
@@ -288,7 +319,10 @@ function buildCard({ badgeClass, badgeText, title, rows }) {
 
 function renderDataLayer() {
   const list = document.getElementById('dataLayerList');
-  const events = currentData?.dataLayer || [];
+  // Eventos conservados de recargas anteriores (marcados) + eventos en vivo.
+  const preserved = (allData?.dataLayerHistory || []).map((e) => ({ ...e, preserved: true }));
+  const live = currentData?.dataLayer || [];
+  const events = [...preserved, ...live];
 
   const datalayerBadge = document.getElementById('badge-datalayer');
   datalayerBadge.textContent = events.length;
@@ -328,6 +362,13 @@ function renderDataLayer() {
           style: `color:${nameColor}`,
           text: String(event.event),
         }),
+        event.preserved
+          ? el('span', {
+              class: 'event-preserved-tag',
+              title: 'Conservado de una carga anterior',
+              text: 'prev',
+            })
+          : null,
         chevron,
       ]
     );

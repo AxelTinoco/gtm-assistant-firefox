@@ -133,7 +133,9 @@ function renderSidebar() {
     added = true;
   }
 
-  if (currentData?.dataLayer?.length > 0) {
+  const dataLayerCount =
+    (currentData?.dataLayer?.length || 0) + (allNetworkData?.dataLayerHistory?.length || 0);
+  if (dataLayerCount > 0) {
     sidebar.appendChild(el('h2', { class: 'sidebar-label', text: 'DataLayer' }));
     sidebar.appendChild(
       sidebarButton({
@@ -141,7 +143,7 @@ function renderSidebar() {
         tidClass: '',
         tidStyle: 'color:#fbbc04',
         tidText: 'dataLayer',
-        sub: `${currentData.dataLayer.length} eventos`,
+        sub: `${dataLayerCount} eventos`,
       })
     );
     added = true;
@@ -188,7 +190,12 @@ function detailTitle(iconColor, iconChar, titleText) {
 
 function showDataLayer() {
   const detail = document.getElementById('detail');
-  const events = currentData?.dataLayer || [];
+  // Eventos conservados de recargas anteriores (marcados) + eventos en vivo.
+  const preserved = (allNetworkData?.dataLayerHistory || []).map((e) => ({
+    ...e,
+    preserved: true,
+  }));
+  const events = [...preserved, ...(currentData?.dataLayer || [])];
   clear(detail);
 
   if (!events.length) {
@@ -201,7 +208,7 @@ function showDataLayer() {
     .reverse()
     .map((e) => [
       String(e.index),
-      { text: String(e.event), class: 'event-cell' },
+      { text: `${e.event}${e.preserved ? ' (prev)' : ''}`, class: 'event-cell' },
       { text: String(e.data), class: 'json-cell' },
     ]);
   detail.appendChild(table(['#', 'Event', 'Payload'], rows));
@@ -312,5 +319,41 @@ document.getElementById('sidebar').addEventListener('click', (event) => {
 
 document.getElementById('refreshBtn').addEventListener('click', loadData);
 
+// Persistencia entre recargas (Opción 1: switch "Conservar al recargar")
+const persistSwitch = document.getElementById('persistSwitch');
+
+function setPersistState(on) {
+  persistSwitch.setAttribute('aria-checked', String(Boolean(on)));
+}
+
+async function togglePersist() {
+  const current = persistSwitch.getAttribute('aria-checked') === 'true';
+  const next = !current;
+  setPersistState(next);
+  try {
+    await browser.storage.local.set({ preserveOnReload: next });
+  } catch (e) {
+    setPersistState(current); // revertir si falla el guardado
+  }
+}
+
+async function initPersistSwitch() {
+  try {
+    const { preserveOnReload } = await browser.storage.local.get('preserveOnReload');
+    setPersistState(preserveOnReload);
+  } catch (e) {
+    setPersistState(false);
+  }
+}
+
+persistSwitch.addEventListener('click', togglePersist);
+persistSwitch.addEventListener('keydown', (event) => {
+  if (event.key === ' ' || event.key === 'Enter') {
+    event.preventDefault();
+    togglePersist();
+  }
+});
+
 // Initial load
+initPersistSwitch();
 loadData();

@@ -2,12 +2,34 @@
 
 const tabData = {}; // { tabId: { gtmHits: [], ga4Hits: [], tagData: null } }
 
+// Bandera "Conservar al recargar" (Opción 1). Se cachea en memoria y se
+// mantiene sincronizada con storage.local para poder consultarla de forma
+// síncrona dentro del handler de PAGE_LOADED.
+let preserveOnReload = false;
+
+browser.storage.local
+  .get('preserveOnReload')
+  .then((result) => {
+    preserveOnReload = Boolean(result.preserveOnReload);
+  })
+  .catch(() => {});
+
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'preserveOnReload' in changes) {
+    preserveOnReload = Boolean(changes.preserveOnReload.newValue);
+  }
+});
+
 function initTabData(tabId) {
   if (!tabData[tabId]) {
     tabData[tabId] = {
       gtmHits: [],
       ga4Hits: [],
       tagData: null,
+      // Snapshots del dataLayer de cargas de página anteriores. El dataLayer
+      // se lee en vivo de la página, así que para conservarlo entre recargas
+      // guardamos aquí lo que había justo antes de recargar.
+      dataLayerHistory: [],
       url: '',
     };
   }
@@ -89,11 +111,19 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     tabData[tabId].url = message.url;
   }
 
-  if (message.type === 'PAGE_LOADED' && tabId) {
-    // Reset hits on new page load
-    if (tabData[tabId]) {
+  if (message.type === 'PAGE_LOADED' && tabId && tabData[tabId]) {
+    if (preserveOnReload) {
+      // Antes de que la página reinicie su dataLayer, guardamos el último
+      // snapshot capturado en el histórico para no perderlo.
+      const previous = tabData[tabId].tagData?.dataLayer || [];
+      if (previous.length) {
+        tabData[tabId].dataLayerHistory = tabData[tabId].dataLayerHistory.concat(previous);
+      }
+    } else {
+      // Comportamiento por defecto: limpiar todo en cada carga.
       tabData[tabId].gtmHits = [];
       tabData[tabId].ga4Hits = [];
+      tabData[tabId].dataLayerHistory = [];
     }
   }
 
@@ -108,6 +138,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (tabData[tId]) {
       tabData[tId].gtmHits = [];
       tabData[tId].ga4Hits = [];
+      tabData[tId].dataLayerHistory = [];
     }
     sendResponse({ ok: true });
     return true;
